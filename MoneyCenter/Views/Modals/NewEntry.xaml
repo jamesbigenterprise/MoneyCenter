@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MoneyCenter.Views.Modals.NewEntry"
+             xmlns:vm="clr-namespace:MoneyCenter.ViewModel"
+             x:DataType="vm:NewEntryViewModel">
+    <ScrollView>
+        <Grid>
+            <Button Text="X"
+            HorizontalOptions="End" VerticalOptions="Start"
+            Margin="0,20,20,0"
+                    Command="{Binding CloseCommand}"/>
+            <StackLayout Padding="20"
+                     VerticalOptions="CenterAndExpand"
+                     HorizontalOptions="CenterAndExpand">
+
+                 <!--Title--> 
+                <Label Text="New Entry"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="#006400"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,20"/>
+
+                 <!--Date--> 
+                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Text="Date"
+                       VerticalOptions="Center"
+                       WidthRequest="100"/>
+                    <DatePicker x:Name="DateSelected"
+                            VerticalOptions="Center"
+                            Format="D"
+                            Date="{Binding NewEntryModel.Date}"   />
+                </StackLayout>
+                 <!--Store--> 
+                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Text="Store"
+                       VerticalOptions="Center"
+                       WidthRequest="100"/>
+                    <Entry x:Name="Store"
+                       Placeholder="Transaction Location"
+                       VerticalOptions="Center"
+                           Text="{Binding NewEntryModel.Store}"/>
+                </StackLayout>
+
+                 <!--Details--> 
+                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Text="Details"
+                       VerticalOptions="Center"
+                       WidthRequest="100"/>
+                    <Entry x:Name="Details"
+                       Placeholder="Transaction Details"
+                       VerticalOptions="Center"
+                           Text="{Binding NewEntryModel.Details}"/>
+                </StackLayout>
+
+                 <!--Money Amount--> 
+                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Text="Amount"
+                       VerticalOptions="Center"
+                       WidthRequest="100"/>
+                    <Entry x:Name="Amount" 
+                       Placeholder="Enter Amount"
+                       VerticalOptions="Center"
+                       Text="{Binding NewEntryModel.Amount}"/>
+                </StackLayout>
+
+                 <!--Category--> 
+                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Text="Category"
+                       VerticalOptions="Center"
+                       WidthRequest="100"/>
+                    <Entry x:Name="Category" 
+                       Placeholder="Category"
+                       VerticalOptions="Center"
+                       Keyboard="Numeric"
+                       Text="{Binding NewEntryModel.Category}"/>
+                </StackLayout>
+
+                 <!--Payment method--> 
+                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Text="Payment Method"
+                       VerticalOptions="Center"
+                       WidthRequest="100"/>
+                    <Entry x:Name="PaymentMethod"
+                       Placeholder="Payment Method"
+                       VerticalOptions="Center"
+                       Text="{Binding NewEntryModel.PaymentMethod}"/>
+                </StackLayout>
+
+                 <!--Apply to--> 
+                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Text="Apply To"
+                       VerticalOptions="Center"
+                       WidthRequest="100"/>
+                    <Entry x:Name="ApplyTo"
+                       Placeholder="Month"
+                       VerticalOptions="Center"
+                       Text="{Binding NewEntryModel.ApplyTo}"/>
+                </StackLayout>
+
+
+                 <!--Save Button--> 
+                <Button Text="Save"
+                    
+                    BackgroundColor="#006400"
+                    TextColor="White"
+                    CornerRadius="5"
+                    VerticalOptions="End"
+                    Margin="0,20,0,0"
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    HorizontalOptions="Center"
+                    Command="{Binding SaveCommand}"/>
+            </StackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>
