@@ -9,12 +9,12 @@ namespace MoneyCenter.Model
         {
             _realmContext = new RealmContext();
         }
-        public List<SingleEntry> GetAllEntries() 
+        public List<SingleEntryDataModel> GetAllEntries() 
         {
-            var allItems = _realmContext.RealmInstance.All<SingleEntry>().ToList();
+            var allItems = _realmContext.RealmInstance.All<SingleEntryDataModel>().ToList();
             return allItems;
         }
-        public bool AddEntry(SingleEntry entry) 
+        public bool AddEntry(SingleEntryDataModel entry) 
         {
             try 
             {

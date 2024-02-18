@@ -2,9 +2,9 @@ using MoneyCenter.ViewModel;
 
 namespace MoneyCenter.Views;
 
-public partial class CardContent : ContentView
+public partial class EntryDetailView : ContentView
 {
-	public CardContent()
+	public EntryDetailView()
 	{
 		InitializeComponent();
 	}

@@ -23,7 +23,7 @@ namespace MoneyCenter.ViewModel
             populateExpenses();
         }
         [ObservableProperty]
-        private ObservableCollection<SingleEntryViewObject> expenses = new();
+        private ObservableCollection<SingleEntryDisplayData> expenses = new();
 
         private void ShowNewEntryModal()
         {
@@ -41,12 +41,12 @@ namespace MoneyCenter.ViewModel
 
         private void populateExpenses() 
         {
-            List<MoneyCenter.Model.SingleEntry> currententies = model.GetAllEntries();
+            List<MoneyCenter.Model.SingleEntryDataModel> currententies = model.GetAllEntries();
             expenses.Clear();
-            foreach (MoneyCenter.Model.SingleEntry entry in currententies) 
+            foreach (MoneyCenter.Model.SingleEntryDataModel entry in currententies) 
             {
                 //translate from the database to this specific card view
-                expenses.Add(new SingleEntryViewObject 
+                expenses.Add(new SingleEntryDisplayData 
                     { 
                         Amount = entry.Amount,
                         Date = entry.Date.DateTime.ToLongDateString(),

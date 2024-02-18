@@ -2,9 +2,9 @@
 using MoneyCenter.Views.Modals;
 namespace MoneyCenter;
 
-public partial class MainPage : ContentPage
+public partial class MainPageView : ContentPage
 {
-    public MainPage()
+    public MainPageView()
 	{
 		InitializeComponent();
 		BindingContext = new HomeViewModel(Navigation);

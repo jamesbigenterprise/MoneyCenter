@@ -39,7 +39,7 @@ namespace MoneyCenter.ViewModel
             //redundant check since it is initialized in the contructor, add a validate inputs method instead
             if(newEntryModel != null) 
             {
-                MoneyCenter.Model.SingleEntry singleEntry = new MoneyCenter.Model.SingleEntry
+                MoneyCenter.Model.SingleEntryDataModel singleEntry = new MoneyCenter.Model.SingleEntryDataModel
                 {
                     Date = newEntryModel.Date,
                     Store = newEntryModel.Store,
