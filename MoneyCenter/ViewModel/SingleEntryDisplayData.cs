@@ -9,7 +9,7 @@ namespace MoneyCenter.ViewModel
 {
     //This is one of the ways to view the data, there will be pie and bar charts as well
     //The fields from the database need to be formatted to fit into this
-    public partial class SingleEntryViewObject : ObservableObject
+    public partial class SingleEntryDisplayData : ObservableObject
     {
         [ObservableProperty]
         private string date;

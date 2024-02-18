@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MoneyCenter.MainPage"
+             x:Class="MoneyCenter.MainPageView"
              xmlns:vm="clr-namespace:MoneyCenter.ViewModel"
              x:DataType="vm:HomeViewModel"
              >
@@ -24,7 +24,7 @@
                 </VerticalStackLayout>
             </ListView.Header>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="{x:Type vm:SingleEntryViewObject}">
+                <DataTemplate x:DataType="{x:Type vm:SingleEntryDisplayData}">
                     <ViewCell>
                         <Frame CornerRadius="5" Margin="10" Padding="10">
                             <StackLayout>

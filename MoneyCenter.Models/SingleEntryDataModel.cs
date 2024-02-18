@@ -3,7 +3,7 @@ using Realms;
 
 namespace MoneyCenter.Model
 {
-    public partial class SingleEntry : IRealmObject
+    public partial class SingleEntryDataModel : IRealmObject
     {
         [PrimaryKey]
         [MapTo("_id")]
