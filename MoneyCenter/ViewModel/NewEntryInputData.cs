@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MoneyCenter.ViewModel
 {
-    public class NewEntryModel
+    public class NewEntryInputData
+
     {
         public DateTime Date { get; set; }
         public string Store { get; set; }

@@ -1,4 +1,5 @@
 ﻿using MoneyCenter.RealmData;
+using Realms;
 
 namespace MoneyCenter.Model
 {
@@ -14,6 +15,13 @@ namespace MoneyCenter.Model
             var allItems = _realmContext.RealmInstance.All<SingleEntryDataModel>().ToList();
             return allItems;
         }
+        public RealmContext RealmContext()
+        {
+            // Replace 'SingleEntryDataModel' with your actual data model type
+            
+            return _realmContext;
+            
+        }
         public bool AddEntry(SingleEntryDataModel entry) 
         {
             try 
@@ -22,6 +30,8 @@ namespace MoneyCenter.Model
                 {
                     _realmContext.RealmInstance.Add(entry);
                 });
+
+                
                 return true;
             }catch (Exception ex) 
             {
