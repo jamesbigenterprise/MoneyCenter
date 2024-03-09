@@ -47,15 +47,18 @@
     <ProjectReference Include="..\MoneyCenter.Models\MoneyCenter.Model.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="HomeView.xaml.cs">
+      <DependentUpon>HomeView.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\EntryDetailView.xaml.cs">
       <DependentUpon>EntryDetailView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\NewEntryView.xaml.cs">
+      <DependentUpon>NewEntryView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <MauiXaml Update="Views\EntryDetailView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </MauiXaml>
-    <MauiXaml Update="Views\NewEntry.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
   </ItemGroup>

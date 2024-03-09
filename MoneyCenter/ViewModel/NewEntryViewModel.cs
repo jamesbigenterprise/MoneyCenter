@@ -1,38 +1,34 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using MoneyCenter.Model;
-using MoneyCenter.ViewModel.Messages;
 
 namespace MoneyCenter.ViewModel
 {
     public partial class NewEntryViewModel : ObservableObject
     {
-        public event EventHandler CloseRequested;
-        public event EventHandler SaveRequested;
-        public Command CloseCommand { get; }
-        public Command SaveCommand { get; }
+
+
         [ObservableProperty]
-        private NewEntryModel newEntryModel = new();
+        private NewEntryInputData newEntryModel = new();
         private MoneyCenter.Model.Model model = new();
-        public NewEntryViewModel() 
+        private HomeViewModel _home;
+        public NewEntryViewModel(HomeViewModel vm) 
         {
-            CloseCommand = new Command(OnCloseCommand);
-            SaveCommand = new Command(OnSaveCommand);
+            _home = vm;
+
         }
 
-        private void OnCloseCommand()
+        [RelayCommand]
+        async Task Save()
         {
-            // Send a message indicating that the modal is closed
-            MessagingCenter.Send(new ModalClosedMessage(), nameof(ModalClosedMessage));
-            CloseRequested?.Invoke(this, EventArgs.Empty);
-        }
-        private void OnSaveCommand() 
-        {
-            //do nothing for now but this would call the model to save data to the database
-            var isRequested = SaveRequested;
-            //create an object compatible with the model
             saveEntry();
-            //close after the save is done
-            OnCloseCommand();
+            await Close();
+        }
+
+        [RelayCommand]
+        async Task Close()
+        {
+            await Shell.Current.GoToAsync("..");
         }
         private bool saveEntry() 
         {
