@@ -6,46 +6,53 @@
              x:DataType="vm:HomeViewModel"
              >
 
-    <StackLayout>
-        <Button Text="+ New Entry"
-         HorizontalOptions="CenterAndExpand"
-         VerticalOptions="CenterAndExpand"
-         BackgroundColor="#006400"
-         TextColor="White"
-         Margin="0,20,0,0"
-         x:Name="Button"
-        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=TapCommand}"/>
-        <ListView ItemsSource="{Binding Expenses}">
-            <ListView.Header >
-                <VerticalStackLayout Padding="5">
-                    <Label HorizontalOptions="Center" Text="Expenses">
+    <ScrollView>
+        <StackLayout>
+            <Button Text="+ New Entry"
+                HorizontalOptions="CenterAndExpand"
+                VerticalOptions="CenterAndExpand"
+                BackgroundColor="#006400"
+                TextColor="White"
+                Margin="0,20,0,0"
+                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=TapCommand}"/>
 
-                    </Label>
-                </VerticalStackLayout>
-            </ListView.Header>
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="{x:Type vm:SingleEntryDisplayData}">
-                    <ViewCell>
-                        <Frame CornerRadius="5" Margin="10" Padding="10">
-                            <StackLayout>
+            <VerticalStackLayout Padding="5">
+                <Label HorizontalOptions="Center" Text="Expenses" TextColor="Black"/>
+            </VerticalStackLayout>
+
+            <CollectionView ItemsSource="{Binding Expenses}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SingleEntryDisplayData">
+                        <Frame CornerRadius="5" Margin="10" Padding="10" BackgroundColor="#eeeeee">
+                            <StackLayout Spacing="5">
                                 <!-- First Row -->
-                                <StackLayout Orientation="Horizontal">
-                                    <Label Text="{Binding Amount}" HorizontalOptions="StartAndExpand" TextColor="White"/>
-                                    <Label Text="{Binding Category}" HorizontalOptions="CenterAndExpand" TextColor="White"/>
-                                    <Label Text="{Binding Date}" HorizontalOptions="EndAndExpand" TextColor="White"/>
+                                <StackLayout Orientation="Horizontal" Spacing="10">
+                                    <Label Text="{Binding Amount}" 
+                                       HorizontalOptions="StartAndExpand" 
+                                       TextColor="Black"
+                                       Padding="5,0"/>
+                                    <Label Text="{Binding Category}" 
+                                       HorizontalOptions="CenterAndExpand" 
+                                       TextColor="Black"
+                                       Padding="5,0"/>
+                                    <Label Text="{Binding Date}" 
+                                       HorizontalOptions="EndAndExpand" 
+                                       TextColor="Black"
+                                       Padding="5,0"/>
                                 </StackLayout>
 
                                 <!-- Second Row -->
-                                <Label Text="{Binding Paragraph}" TextColor="White"/>
+                                <Label Text="{Binding Paragraph}" 
+                                   TextColor="Black"
+                                   Padding="5,0"/>
                             </StackLayout>
                         </Frame>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </ScrollView>
 
-    </StackLayout>
-    
-  
+
 
 </ContentPage>
