@@ -9,11 +9,11 @@
     <ScrollView>
         <StackLayout>
             <Button Text="+ New Entry"
-                HorizontalOptions="CenterAndExpand"
-                VerticalOptions="CenterAndExpand"
-                BackgroundColor="#006400"
-                TextColor="White"
-                Margin="0,20,0,0"
+                    HorizontalOptions="CenterAndExpand"
+                    VerticalOptions="CenterAndExpand"
+                    BackgroundColor="#006400"
+                    TextColor="White"
+                    Margin="0,20,0,0"
                  Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=TapCommand}"/>
 
             <VerticalStackLayout Padding="5">
@@ -23,36 +23,44 @@
             <CollectionView ItemsSource="{Binding Expenses}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:SingleEntryDisplayData">
-                        <Frame CornerRadius="5" Margin="10" Padding="10" BackgroundColor="#eeeeee">
-                            <StackLayout Spacing="5">
-                                <!-- First Row -->
-                                <StackLayout Orientation="Horizontal" Spacing="10">
-                                    <Label Text="{Binding Amount}" 
-                                       HorizontalOptions="StartAndExpand" 
-                                       TextColor="Black"
-                                       Padding="5,0"/>
-                                    <Label Text="{Binding Category}" 
-                                       HorizontalOptions="CenterAndExpand" 
-                                       TextColor="Black"
-                                       Padding="5,0"/>
-                                    <Label Text="{Binding Date}" 
-                                       HorizontalOptions="EndAndExpand" 
-                                       TextColor="Black"
-                                       Padding="5,0"/>
-                                </StackLayout>
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="Delete"
+                                               BackgroundColor="Red"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=DeleteCommand}"
+                                               CommandParameter="{Binding Id}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
 
-                                <!-- Second Row -->
-                                <Label Text="{Binding Paragraph}" 
-                                   TextColor="Black"
-                                   Padding="5,0"/>
-                            </StackLayout>
-                        </Frame>
+                            <Frame CornerRadius="5" Margin="10" Padding="10" BackgroundColor="#eeeeee">
+                                <StackLayout Spacing="5">
+                                    <!-- First Row -->
+                                    <StackLayout Orientation="Horizontal" Spacing="10">
+                                        <Label Text="{Binding Amount}" 
+                                               HorizontalOptions="StartAndExpand" 
+                                               TextColor="Black"
+                                               Padding="5,0"/>
+                                        <Label Text="{Binding Category}" 
+                                               HorizontalOptions="CenterAndExpand" 
+                                               TextColor="Black"
+                                               Padding="5,0"/>
+                                        <Label Text="{Binding Date}" 
+                                               HorizontalOptions="EndAndExpand" 
+                                               TextColor="Black"
+                                               Padding="5,0"/>
+                                    </StackLayout>
+
+                                    <!-- Second Row -->
+                                    <Label Text="{Binding Paragraph}" 
+                                           TextColor="Black"
+                                           Padding="5,0"/>
+                                </StackLayout>
+                            </Frame>
+                        </SwipeView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </StackLayout>
     </ScrollView>
-
-
-
 </ContentPage>

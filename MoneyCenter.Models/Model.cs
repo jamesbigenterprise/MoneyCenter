@@ -1,4 +1,5 @@
 ﻿using MoneyCenter.RealmData;
+using MongoDB.Bson;
 using Realms;
 
 namespace MoneyCenter.Model
@@ -14,6 +15,17 @@ namespace MoneyCenter.Model
         {
             var allItems = _realmContext.RealmInstance.All<SingleEntryDataModel>().ToList();
             return allItems;
+        }
+        public async Task DeleteSingleEntry(ObjectId id) 
+        {
+            var itemToDelete = _realmContext.RealmInstance.Find<SingleEntryDataModel>(id);
+            if (itemToDelete != null)
+            {
+                await _realmContext.RealmInstance.WriteAsync(() =>
+                {
+                    _realmContext.RealmInstance.Remove(itemToDelete);
+                });
+            }
         }
         public RealmContext RealmContext()
         {

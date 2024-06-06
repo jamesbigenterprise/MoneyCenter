@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,7 @@ namespace MoneyCenter.ViewModel
         private string amount;
         [ObservableProperty]
         private string paragraph;
+        [ObservableProperty]
+        private ObjectId id;
     }
 }
