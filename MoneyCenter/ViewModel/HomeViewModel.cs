@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Realms;
 using MoneyCenter.Model;
 using MongoDB.Bson;
+using MoneyCenter.Schema;
 
 //Current problem, cannot reference objects in the view from the view model
 //the navigation service would be great if it worked.
@@ -18,7 +19,7 @@ namespace MoneyCenter.ViewModel
         private MoneyCenter.Model.Model model = new();
         public HomeViewModel() 
         {
-            populateExpenses();
+            
         }
         [ObservableProperty]
         private ObservableCollection<SingleEntryDisplayData> expenses = new();
@@ -30,17 +31,18 @@ namespace MoneyCenter.ViewModel
         }
 
         [RelayCommand]
-        async Task Delete(ObjectId Id) 
+        async Task Delete(int Id) 
         {
-            model.DeleteSingleEntry(Id);
+            await model.DeleteSingleEntry(Id);
+            await populateExpenses();
         }
 
         //this class is never disposed
-        public void populateExpenses() 
+        public async Task populateExpenses() 
         {
-            List<MoneyCenter.Model.SingleEntryDataModel> currententies = model.GetAllEntries();
+            List<SingleEntryDataModel> currententies = await model.GetAllEntries();
             expenses.Clear();
-            foreach (MoneyCenter.Model.SingleEntryDataModel entry in currententies) 
+            foreach (SingleEntryDataModel entry in currententies) 
             {
                 //translate from the database to this specific card view
                 expenses.Add(new SingleEntryDisplayData 
@@ -53,13 +55,6 @@ namespace MoneyCenter.ViewModel
                     });
             }
 
-            // Refresh the Realm instance
-            var realm = model.RealmContext();
-            // Observe realm notifications.
-            realm.RealmInstance.RealmChanged += (sender, eventArgs) =>
-            {
-                populateExpenses();
-            };
         }
 
     }

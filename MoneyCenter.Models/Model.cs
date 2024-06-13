@@ -1,31 +1,39 @@
 ﻿using MoneyCenter.RealmData;
+using MoneyCenter.Schema;
+using MoneyCenter.SQLiteWrapper;
 using MongoDB.Bson;
 using Realms;
+using static Realms.Sync.MongoClient;
 
 namespace MoneyCenter.Model
 {
     public class Model
     {
         private readonly RealmContext _realmContext;
+        private MoneyCenterDatabase databaseHelper;
         public Model() 
         {
             _realmContext = new RealmContext();
         }
-        public List<SingleEntryDataModel> GetAllEntries() 
+        public async Task InitializeDatabase() 
         {
-            var allItems = _realmContext.RealmInstance.All<SingleEntryDataModel>().ToList();
+            if (databaseHelper == null) 
+            {
+                databaseHelper = await MoneyCenterDatabase.CreateAsync();
+            }
+            //Research the best way to check if the initialization was succesful
+        }
+
+        public async Task<List<SingleEntryDataModel>> GetAllEntries() 
+        {
+            await InitializeDatabase();
+            var allItems = await databaseHelper.GetAllEntries();
             return allItems;
         }
-        public async Task DeleteSingleEntry(ObjectId id) 
+        public async Task DeleteSingleEntry(int id) 
         {
-            var itemToDelete = _realmContext.RealmInstance.Find<SingleEntryDataModel>(id);
-            if (itemToDelete != null)
-            {
-                await _realmContext.RealmInstance.WriteAsync(() =>
-                {
-                    _realmContext.RealmInstance.Remove(itemToDelete);
-                });
-            }
+            await InitializeDatabase();
+            int response = await databaseHelper.DeleteEntryByID(id);
         }
         public RealmContext RealmContext()
         {
@@ -34,22 +42,11 @@ namespace MoneyCenter.Model
             return _realmContext;
             
         }
-        public bool AddEntry(SingleEntryDataModel entry) 
+        public async Task AddEntry(SingleEntryDataModel entry) 
         {
-            try 
-            {
-                _realmContext.RealmInstance.Write(() =>
-                {
-                    _realmContext.RealmInstance.Add(entry);
-                });
+            await InitializeDatabase();
+            await databaseHelper.InsertEntry(entry);
 
-                
-                return true;
-            }catch (Exception ex) 
-            {
-                //error saving the entry
-                return false;
-            }
         }
     }
 }

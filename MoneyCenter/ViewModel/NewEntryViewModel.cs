@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MoneyCenter.Model;
+using MoneyCenter.Schema;
 
 namespace MoneyCenter.ViewModel
 {
@@ -21,7 +22,7 @@ namespace MoneyCenter.ViewModel
         [RelayCommand]
         async Task Save()
         {
-            saveEntry();
+            await saveEntry();
             await Close();
         }
 
@@ -30,12 +31,11 @@ namespace MoneyCenter.ViewModel
         {
             await Shell.Current.GoToAsync("..");
         }
-        private bool saveEntry() 
+        private async Task saveEntry() 
         {
             //redundant check since it is initialized in the contructor, add a validate inputs method instead
-            if(newEntryModel != null) 
-            {
-                MoneyCenter.Model.SingleEntryDataModel singleEntry = new MoneyCenter.Model.SingleEntryDataModel
+
+                SingleEntryDataModel singleEntry = new SingleEntryDataModel
                 {
                     Date = newEntryModel.Date,
                     Store = newEntryModel.Store,
@@ -45,9 +45,8 @@ namespace MoneyCenter.ViewModel
                     PmtMethod = newEntryModel.PaymentMethod,
                     ApplyTo = newEntryModel.ApplyTo.ToString()
                 };
-                return model.AddEntry(singleEntry);
-            }
-            else { return false; }
+                await model.AddEntry(singleEntry);
+
         }
     }
 }

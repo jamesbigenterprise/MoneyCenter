@@ -21,6 +21,6 @@ namespace MoneyCenter.ViewModel
         [ObservableProperty]
         private string paragraph;
         [ObservableProperty]
-        private ObjectId id;
+        private int id;
     }
 }

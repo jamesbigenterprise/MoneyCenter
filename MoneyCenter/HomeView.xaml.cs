@@ -8,5 +8,14 @@ public partial class HomeView : ContentPage
 		InitializeComponent();
 		BindingContext = new HomeViewModel();
     }
+
+	protected override void OnAppearing() 
+	{
+		base.OnAppearing();
+		if(BindingContext is HomeViewModel vm) 
+		{
+			Task.Run(async () => await vm.populateExpenses());
+		}
+	}
 }
 
