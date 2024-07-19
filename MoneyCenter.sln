@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyCenter", "MoneyCenter\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyCenter.Model", "MoneyCenter.Models\MoneyCenter.Model.csproj", "{35A3F066-22FF-4E7F-B271-8C2DB96F9113}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyCenter.RealmData", "MoneyCenter.RealmData\MoneyCenter.RealmData.csproj", "{5543093A-9218-421F-8299-A521A64D2B5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyCenter.SQLiteWrapper", "MoneyCenter.SQLite\MoneyCenter.SQLiteWrapper.csproj", "{6C4040C3-53DF-4FD5-BF4C-F6F5A617139A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyCenter.SQLiteWrapper", "MoneyCenter.SQLite\MoneyCenter.SQLiteWrapper.csproj", "{6C4040C3-53DF-4FD5-BF4C-F6F5A617139A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoneyCenter.Schema", "MoneyCenter.Schema\MoneyCenter.Schema.csproj", "{5F12D067-B21A-465A-867E-CD3026FF726E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyCenter.Schema", "MoneyCenter.Schema\MoneyCenter.Schema.csproj", "{5F12D067-B21A-465A-867E-CD3026FF726E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonerCenter.Tests", "MonerCenter.Tests\MonerCenter.Tests.csproj", "{E7C9A5F5-FDFB-4404-AE99-71185B074353}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,6 @@ Global
 		{35A3F066-22FF-4E7F-B271-8C2DB96F9113}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35A3F066-22FF-4E7F-B271-8C2DB96F9113}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35A3F066-22FF-4E7F-B271-8C2DB96F9113}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5543093A-9218-421F-8299-A521A64D2B5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5543093A-9218-421F-8299-A521A64D2B5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5543093A-9218-421F-8299-A521A64D2B5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5543093A-9218-421F-8299-A521A64D2B5E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6C4040C3-53DF-4FD5-BF4C-F6F5A617139A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C4040C3-53DF-4FD5-BF4C-F6F5A617139A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C4040C3-53DF-4FD5-BF4C-F6F5A617139A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,6 +37,10 @@ Global
 		{5F12D067-B21A-465A-867E-CD3026FF726E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F12D067-B21A-465A-867E-CD3026FF726E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F12D067-B21A-465A-867E-CD3026FF726E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7C9A5F5-FDFB-4404-AE99-71185B074353}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7C9A5F5-FDFB-4404-AE99-71185B074353}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7C9A5F5-FDFB-4404-AE99-71185B074353}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7C9A5F5-FDFB-4404-AE99-71185B074353}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

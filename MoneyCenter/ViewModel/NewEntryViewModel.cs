@@ -11,7 +11,7 @@ namespace MoneyCenter.ViewModel
 
         [ObservableProperty]
         private NewEntryInputData newEntryModel = new();
-        private MoneyCenter.Model.Model model = new();
+        private MoneyCenter.Model.MoneyCenterModel model = new();
         private HomeViewModel _home;
         public NewEntryViewModel(HomeViewModel vm) 
         {

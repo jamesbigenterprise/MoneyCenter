@@ -6,7 +6,7 @@ namespace MoneyCenter.Schema
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
-        public DateTimeOffset Date { get; set; }
+        public DateTime Date { get; set; }
         public string Store { get; set; }
         public string Details { get; set; }
         public string Amount { get; set; }

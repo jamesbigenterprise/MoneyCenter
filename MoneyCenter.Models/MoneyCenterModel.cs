@@ -1,19 +1,13 @@
-﻿using MoneyCenter.RealmData;
-using MoneyCenter.Schema;
+﻿using MoneyCenter.Schema;
 using MoneyCenter.SQLiteWrapper;
-using MongoDB.Bson;
-using Realms;
-using static Realms.Sync.MongoClient;
 
 namespace MoneyCenter.Model
 {
-    public class Model
+    public class MoneyCenterModel : IModel
     {
-        private readonly RealmContext _realmContext;
-        private MoneyCenterDatabase databaseHelper;
-        public Model() 
+        private MoneyCenterDatabase? databaseHelper;
+        public MoneyCenterModel() 
         {
-            _realmContext = new RealmContext();
         }
         public async Task InitializeDatabase() 
         {
@@ -35,13 +29,7 @@ namespace MoneyCenter.Model
             await InitializeDatabase();
             int response = await databaseHelper.DeleteEntryByID(id);
         }
-        public RealmContext RealmContext()
-        {
-            // Replace 'SingleEntryDataModel' with your actual data model type
-            
-            return _realmContext;
-            
-        }
+
         public async Task AddEntry(SingleEntryDataModel entry) 
         {
             await InitializeDatabase();

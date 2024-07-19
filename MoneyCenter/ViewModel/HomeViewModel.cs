@@ -3,10 +3,8 @@ using System.Collections.ObjectModel;
 using MoneyCenter.Views;
 
 using CommunityToolkit.Mvvm.Input;
-using Realms;
-using MoneyCenter.Model;
-using MongoDB.Bson;
 using MoneyCenter.Schema;
+using MoneyCenter.Model;
 
 //Current problem, cannot reference objects in the view from the view model
 //the navigation service would be great if it worked.
@@ -16,9 +14,11 @@ namespace MoneyCenter.ViewModel
 {
     public partial class HomeViewModel : ObservableObject
     {
-        private MoneyCenter.Model.Model model = new();
-        public HomeViewModel() 
+        private readonly IModel _model;
+
+        public HomeViewModel(IModel model) 
         {
+            _model = model;
             
         }
         [ObservableProperty]
@@ -33,14 +33,14 @@ namespace MoneyCenter.ViewModel
         [RelayCommand]
         async Task Delete(int Id) 
         {
-            await model.DeleteSingleEntry(Id);
+            await _model.DeleteSingleEntry(Id);
             await populateExpenses();
         }
 
         //this class is never disposed
         public async Task populateExpenses() 
         {
-            List<SingleEntryDataModel> currententies = await model.GetAllEntries();
+            List<SingleEntryDataModel> currententies = await _model.GetAllEntries();
             expenses.Clear();
             foreach (SingleEntryDataModel entry in currententies) 
             {
@@ -48,7 +48,7 @@ namespace MoneyCenter.ViewModel
                 expenses.Add(new SingleEntryDisplayData 
                     { 
                         Amount = entry.Amount,
-                        Date = entry.Date.DateTime.ToLongDateString(),
+                        Date = entry.Date.ToShortDateString(),
                         Category = entry.Category,
                         Paragraph = entry.Details,
                         Id = entry.Id

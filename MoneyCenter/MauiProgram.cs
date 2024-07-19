@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MoneyCenter.Model;
 using MoneyCenter.ViewModel;
 using MoneyCenter.Views;
 
@@ -22,6 +23,7 @@ public static class MauiProgram
 #endif
 		builder.Services.AddSingleton<HomeView>();
         builder.Services.AddSingleton<HomeViewModel>();
+		builder.Services.AddSingleton <IModel>(new MoneyCenterModel());
 
         builder.Services.AddTransient<NewEntryView>();
         builder.Services.AddTransient<NewEntryViewModel>();

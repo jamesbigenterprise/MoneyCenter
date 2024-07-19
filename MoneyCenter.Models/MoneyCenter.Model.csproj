@@ -8,11 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
-    <PackageReference Include="Realm" Version="11.7.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MoneyCenter.RealmData\MoneyCenter.RealmData.csproj" />
     <ProjectReference Include="..\MoneyCenter.SQLite\MoneyCenter.SQLiteWrapper.csproj" />
   </ItemGroup>
 

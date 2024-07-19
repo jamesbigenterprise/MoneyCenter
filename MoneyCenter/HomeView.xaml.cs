@@ -3,10 +3,11 @@ namespace MoneyCenter;
 
 public partial class HomeView : ContentPage
 {
-    public HomeView()
+    public HomeView(HomeViewModel vm)
 	{
 		InitializeComponent();
-		BindingContext = new HomeViewModel();
+
+		BindingContext = vm;
     }
 
 	protected override void OnAppearing() 
