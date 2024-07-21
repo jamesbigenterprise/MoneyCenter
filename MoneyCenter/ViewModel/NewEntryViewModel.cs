@@ -15,6 +15,7 @@ namespace MoneyCenter.ViewModel
         private HomeViewModel _home;
         public NewEntryViewModel(HomeViewModel vm) 
         {
+
             _home = vm;
 
         }

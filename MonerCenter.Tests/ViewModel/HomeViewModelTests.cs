@@ -1,6 +1,4 @@
 ﻿using MoneyCenter.Model;
-using Xunit;
-using System.Collections.ObjectModel;
 using MoneyCenter.Schema;
 using Moq;
 using FluentAssertions;

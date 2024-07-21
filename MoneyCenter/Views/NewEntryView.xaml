@@ -3,101 +3,131 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MoneyCenter.Views.NewEntryView"
              xmlns:vm="clr-namespace:MoneyCenter.ViewModel"
-             x:DataType="vm:NewEntryViewModel">
-    <ScrollView>
-        <Grid>
+             x:DataType="vm:NewEntryViewModel"
+              BackgroundColor="#156E2F">
+    <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+        <Grid VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <Button Text="X"
-            HorizontalOptions="End" VerticalOptions="Start"
-            Margin="0,20,20,0"
-                    Command="{Binding CloseCommand}"/>
+HorizontalOptions="End" VerticalOptions="Start"
+Margin="0,20,20,0"
+        Command="{Binding CloseCommand}"/>
             <StackLayout Padding="20"
-                     VerticalOptions="CenterAndExpand"
-                     HorizontalOptions="CenterAndExpand">
+         VerticalOptions="CenterAndExpand"
+         HorizontalOptions="FillAndExpand">
 
-                 <!--Title--> 
-                <Label Text="New Entry"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="#006400"
-                   HorizontalOptions="Center"
-                   Margin="0,0,0,20"/>
-
-                 <!--Date--> 
+                <!--Date-->
+                <Border Stroke="Black" 
+                        StrokeThickness="5" 
+                        Background="White" 
+                        Margin="0,0,0,10"
+                        HorizontalOptions="FillAndExpand">
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                        <DatePicker x:Name="DateSelected"
+                    VerticalOptions="Center"
+                    Format="D"
+                    Date="{Binding NewEntryModel.Date}"
+                    BackgroundColor="White"
+                    TextColor="Black"
+        />
+                    </StackLayout>
+                </Border>
+                <!--Store-->
+                <Border Stroke="Black" 
+    StrokeThickness="5" 
+    Background="White" 
+    Margin="0,0,0,10">
                 <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Text="Date"
-                       VerticalOptions="Center"
-                       WidthRequest="100"/>
-                    <DatePicker x:Name="DateSelected"
-                            VerticalOptions="Center"
-                            Format="D"
-                            Date="{Binding NewEntryModel.Date}"   />
-                </StackLayout>
-                 <!--Store--> 
-                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Text="Store"
-                       VerticalOptions="Center"
-                       WidthRequest="100"/>
                     <Entry x:Name="Store"
                        Placeholder="Transaction Location"
-                       VerticalOptions="Center"
+                       VerticalOptions="CenterAndExpand"
+                            HorizontalOptions="FillAndExpand"
+                           TextColor="Black"
                            Text="{Binding NewEntryModel.Store}"/>
                 </StackLayout>
+</Border>
+                 <!--Details-->
+                <Border Stroke="Black" 
+    StrokeThickness="5" 
+    Background="White" 
+    Margin="0,0,0,10">
+                    <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
 
-                 <!--Details--> 
-                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Text="Details"
-                       VerticalOptions="Center"
-                       WidthRequest="100"/>
                     <Entry x:Name="Details"
                        Placeholder="Transaction Details"
-                       VerticalOptions="Center"
+                       VerticalOptions="CenterAndExpand"
+     HorizontalOptions="FillAndExpand"
+                           TextColor="Black"
                            Text="{Binding NewEntryModel.Details}"/>
                 </StackLayout>
+</Border>
 
-                 <!--Money Amount--> 
-                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Text="Amount"
-                       VerticalOptions="Center"
-                       WidthRequest="100"/>
-                    <Entry x:Name="Amount" 
+
+
+
+
+
+
+                <!--Money Amount-->
+                <Border Stroke="Black" 
+                    StrokeThickness="5" 
+                    Background="White" 
+                    Margin="0,0,0,10">
+                    <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                        <Entry x:Name="Amount" 
                        Placeholder="Enter Amount"
-                       VerticalOptions="Center"
+                       VerticalOptions="CenterAndExpand"
+     HorizontalOptions="FillAndExpand"
+                               TextColor="Black"
                        Text="{Binding NewEntryModel.Amount}"/>
-                </StackLayout>
-
-                 <!--Category--> 
-                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Text="Category"
-                       VerticalOptions="Center"
-                       WidthRequest="100"/>
-                    <Entry x:Name="Category" 
+                    </StackLayout>
+                </Border>
+                <!--Category-->
+                <Border Stroke="Black" 
+    StrokeThickness="5" 
+    Background="White" 
+    Margin="0,0,0,10">
+                    <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                        
+                        <Entry x:Name="Category" 
                        Placeholder="Category"
-                       VerticalOptions="Center"
+                       VerticalOptions="CenterAndExpand"
+     HorizontalOptions="FillAndExpand"
                        Keyboard="Numeric"
+                               TextColor="Black"
                        Text="{Binding NewEntryModel.Category}"/>
-                </StackLayout>
+                    </StackLayout>
+                </Border>
 
-                 <!--Payment method--> 
-                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Text="Payment Method"
-                       VerticalOptions="Center"
-                       WidthRequest="100"/>
+                <!--Payment method-->
+                <Border Stroke="Black" 
+                StrokeThickness="5" 
+                Background="White" 
+                Margin="0,0,0,10">
+                    <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+                   
                     <Entry x:Name="PaymentMethod"
                        Placeholder="Payment Method"
-                       VerticalOptions="Center"
+                       VerticalOptions="CenterAndExpand"
+     HorizontalOptions="FillAndExpand"
+                           TextColor="Black"
                        Text="{Binding NewEntryModel.PaymentMethod}"/>
                 </StackLayout>
+</Border>
+                 <!--Apply to-->
+                <Border Stroke="Black" 
+    StrokeThickness="5" 
+    Background="White" 
+    Margin="0,0,0,10">
+                    <StackLayout Orientation="Horizontal" >
 
-                 <!--Apply to--> 
-                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                    <Label Text="Apply To"
-                       VerticalOptions="Center"
-                       WidthRequest="100"/>
                     <Entry x:Name="ApplyTo"
                        Placeholder="Month"
-                       VerticalOptions="Center"
+                       VerticalOptions="CenterAndExpand"
+     HorizontalOptions="FillAndExpand"
+                           TextColor="Black"
                        Text="{Binding NewEntryModel.ApplyTo}"/>
                 </StackLayout>
+                    </Border>
 
 
                  <!--Save Button--> 
