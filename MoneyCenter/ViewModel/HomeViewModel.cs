@@ -37,6 +37,11 @@ namespace MoneyCenter.ViewModel
             await populateExpenses();
         }
 
+        [RelayCommand]
+        async Task OpenColapseTest()
+        {
+            await Shell.Current.GoToAsync(nameof(NewPage1));
+        }
         //this class is never disposed
         public async Task populateExpenses() 
         {

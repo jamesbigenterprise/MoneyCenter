@@ -2,7 +2,12 @@
 using MoneyCenter.Model;
 using MoneyCenter.ViewModel;
 using MoneyCenter.Views;
-
+using CommunityToolkit.Mvvm;
+using MoneyCenter.Views.Icons;
+using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Markup;
+using Microsoft.Maui.Controls.Compatibility.Hosting;
 namespace MoneyCenter;
 
 public static class MauiProgram
@@ -12,10 +17,15 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-			.ConfigureFonts(fonts =>
+            .UseMauiCommunityToolkit()
+			.UseMauiCommunityToolkitCore()
+			.UseMauiCommunityToolkitMarkup()
+			.UseMauiCompatibility()
+            .ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+				fonts.AddFont("MaterialIcons-Regular.ttf", nameof(MaterialIcon));
 			});
 
 #if DEBUG

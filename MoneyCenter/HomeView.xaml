@@ -8,6 +8,11 @@
 
     <ScrollView>
         <StackLayout>
+            <Button
+                Text="OpenColapseTest"
+                Command="{Binding OpenColapseTestCommand}">
+                
+            </Button>
             <Button Text="+ New Entry"
                     HorizontalOptions="CenterAndExpand"
                     VerticalOptions="CenterAndExpand"
