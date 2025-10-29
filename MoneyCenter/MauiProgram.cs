@@ -8,6 +8,8 @@ using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
 using Microsoft.Maui.Controls.Compatibility.Hosting;
+using MoneyCenter.Services;
+
 namespace MoneyCenter;
 
 public static class MauiProgram
@@ -31,12 +33,20 @@ public static class MauiProgram
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
-		builder.Services.AddSingleton<HomeView>();
-        builder.Services.AddSingleton<HomeViewModel>();
+		builder.Services.AddSingleton<MainView>();
+        builder.Services.AddSingleton<MainViewModel>();
 		builder.Services.AddSingleton <IModel>(new MoneyCenterModel());
 
         builder.Services.AddTransient<NewEntryView>();
         builder.Services.AddTransient<NewEntryViewModel>();
+
+        // Register services
+        builder.Services.AddSingleton<IFinancialService, FinancialService>();
+        builder.Services.AddSingleton<IToastService, ToastService>();
+
+        // Register viewmodels
+        builder.Services.AddTransient<ExpensesViewModel>();
+
 
         return builder.Build();
 	}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
+             x:Class="MoneyCenter.Views.SavingsView">
+
+    <VerticalStackLayout Padding="16" Spacing="16">
+        <Label Text="Savings Allocator" FontSize="24" FontAttributes="Bold" />
+        <Label Text="Total Savings:" FontSize="18" />
+        <Label Text="{Binding TotalSavings, StringFormat='${0:F2}'}" FontSize="22" FontAttributes="Bold" TextColor="Green" />
+
+        <Label Text="Savings Categories" FontAttributes="Bold" Margin="0,16,0,0"/>
+        <CollectionView ItemsSource="{Binding SavingsCategories}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="*,Auto" Padding="8">
+                        <Label Text="{Binding Name}" />
+                        <Label Text="{Binding Amount, StringFormat='${0:F2}'}" Grid.Column="1" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentView>
