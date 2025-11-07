@@ -5,10 +5,6 @@
              x:Class="MoneyCenter.MainView"
              Title="Financial Dashboard">
 
-    <ContentPage.BindingContext>
-        <viewmodel:MainViewModel />
-    </ContentPage.BindingContext>
-
     <Grid RowDefinitions="Auto,*,Auto">
         <!-- Tabs for Desktop -->
         <Grid Grid.Row="0" IsVisible="{Binding IsDesktop}">
