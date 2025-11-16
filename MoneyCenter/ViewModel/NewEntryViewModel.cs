@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MoneyCenter.Model;
 using MoneyCenter.Schema;
 
 namespace MoneyCenter.ViewModel
@@ -12,8 +11,8 @@ namespace MoneyCenter.ViewModel
         [ObservableProperty]
         private NewEntryInputData newEntryModel = new();
         private MoneyCenter.Model.MoneyCenterModel model = new();
-        private HomeViewModel _home;
-        public NewEntryViewModel(HomeViewModel vm) 
+        private MainViewModel _home;
+        public NewEntryViewModel(MainViewModel vm) 
         {
 
             _home = vm;

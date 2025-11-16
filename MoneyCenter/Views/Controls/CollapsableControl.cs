@@ -1,21 +1,20 @@
-﻿using System.Runtime.CompilerServices;
-using CommunityToolkit.Maui.Extensions;
-using FmgLib.MauiMarkup;
-using Microsoft.Maui.Layouts;
+﻿using FmgLib.MauiMarkup;
 using MoneyCenter.Views.Extensions;
 using MoneyCenter.Views.Icons;
-
+using System.Runtime.CompilerServices;
 
 namespace MoneyCenter.Views.Controls
 {
     public class AccordionControl : Border
     {
         #region Bindable Properties
+
         public static readonly BindableProperty HeaderProperty = BindableProperty.Create(
             nameof(Header),
             typeof(View),
             typeof(AccordionControl)
         );
+
         public View Header
         {
             get => (View)GetValue(HeaderProperty);
@@ -27,6 +26,7 @@ namespace MoneyCenter.Views.Controls
             typeof(View),
             typeof(AccordionControl)
         );
+
         public View AccordionContent
         {
             get => (View)GetValue(AccordionContentProperty);
@@ -39,6 +39,7 @@ namespace MoneyCenter.Views.Controls
             typeof(AccordionControl),
             true
         );
+
         public bool IsCollapsed
         {
             get => (bool)GetValue(IsCollapsedProperty);
@@ -51,22 +52,28 @@ namespace MoneyCenter.Views.Controls
             typeof(AccordionControl),
             48
         );
+
         public int IconSize
         {
             get => (int)GetValue(IconSizeProperty);
             set => SetValue(IconSizeProperty, value);
         }
-        #endregion
+
+        #endregion Bindable Properties
 
         #region UI Definitions
+
         private readonly VerticalStackLayout _ContentLayout = new VerticalStackLayout().Spacing(0);
         private readonly Grid _Header = new();
         private readonly Image _Chevron = new Image().Margin(8);
+
         //private readonly BoxView _Divider = new BoxView().MakeDivider(Colors.DarkGray);
         private readonly TapGestureRecognizer _CollapseTap = new TapGestureRecognizer().NumberOfTapsRequired(1);
-        #endregion
+
+        #endregion UI Definitions
 
         #region Constructor
+
         public AccordionControl()
         {
             this
@@ -77,9 +84,11 @@ namespace MoneyCenter.Views.Controls
                 .GestureRecognizers(_CollapseTap);
             _CollapseTap.Tapped += OnCollapseTap;
         }
-        #endregion
+
+        #endregion Constructor
 
         #region Methods
+
         private async void OnCollapseTap(object? sender, EventArgs e)
         {
             //await _Header.BackgroundColorTo(Colors.Green.WithAlpha(0.25f), 10);
@@ -161,9 +170,9 @@ namespace MoneyCenter.Views.Controls
             }
         }
 
-        #endregion
-
+        #endregion Methods
     }
+
     public static class ViewExtensions
     {
         public static Task AnimateHeightAsync(this View view, double toHeight, uint duration)
@@ -182,5 +191,4 @@ namespace MoneyCenter.Views.Controls
             return tcs.Task;
         }
     }
-
 }

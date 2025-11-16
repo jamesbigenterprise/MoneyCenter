@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
+             x:Class="MoneyCenter.Views.ExpensesView">
+
+    <Grid RowDefinitions="Auto,*" Padding="10">
+        <VerticalStackLayout Grid.Row="0" Spacing="10">
+            <Label Text="Expense Tracker" FontSize="24" FontAttributes="Bold" />
+
+            <!-- Month Selection -->
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0" Text="&lt;" Command="{Binding PreviousMonthCommand}" />
+                <Picker Grid.Column="1" ItemsSource="{Binding AvailableMonths}" 
+                        SelectedItem="{Binding SelectedMonth}" 
+                        Title="Select Month" />
+                <Button Grid.Column="2" Text="&gt;" Command="{Binding NextMonthCommand}" />
+            </Grid>
+
+            <!-- Budget Selection -->
+            <Grid ColumnDefinitions="Auto,*">
+                <Label Grid.Column="0" Text="Budget Template:" VerticalOptions="Center" />
+                <Picker Grid.Column="1" ItemsSource="{Binding Budgets}" 
+                        SelectedItem="{Binding SelectedBudget}"
+                        ItemDisplayBinding="{Binding Name}" />
+            </Grid>
+
+            <!-- Add Expense Form -->
+            <Border StrokeThickness="1" Padding="10">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Add New Expense" FontAttributes="Bold" />
+
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Amount:" VerticalOptions="Center" />
+                        <Entry Grid.Row="0" Grid.Column="1" Text="{Binding NewExpenseAmount}" Keyboard="Numeric" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Date:" VerticalOptions="Center" />
+                        <DatePicker Grid.Row="1" Grid.Column="1" Date="{Binding NewExpenseDate}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Category:" VerticalOptions="Center" />
+                        <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto">
+                            <Picker Grid.Column="0" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" />
+                            <Button Grid.Column="1" Text="+" Command="{Binding AddCategoryCommand}" />
+                        </Grid>
+
+                        <Label Grid.Row="3" Grid.Column="0" Text="Destination:" VerticalOptions="Center" />
+                        <Entry Grid.Row="3" Grid.Column="1" Text="{Binding NewExpenseDestination}" />
+
+                        <Label Grid.Row="4" Grid.Column="0" Text="Details:" VerticalOptions="Center" />
+                        <Entry Grid.Row="4" Grid.Column="1" Text="{Binding NewExpenseDetails}" />
+                    </Grid>
+
+                    <Button Text="Add Expense" Command="{Binding AddExpenseCommand}" HorizontalOptions="End" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Expense List -->
+        <ScrollView Grid.Row="1" Margin="0,15,0,0">
+            <VerticalStackLayout>
+                <Label Text="Expenses" FontAttributes="Bold" Margin="0,0,0,10" />
+                <CollectionView ItemsSource="{Binding CurrentExpenses}" EmptyView="No expenses for this month">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="Edit" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ExpensesViewModel}}, Path=EditExpenseCommand}" 
+                                                   CommandParameter="{Binding}" BackgroundColor="Blue" />
+                                        <SwipeItem Text="Delete" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ExpensesViewModel}}, Path=DeleteExpenseCommand}" 
+                                                   CommandParameter="{Binding}" BackgroundColor="Red" />
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+
+                                <Grid Padding="10" ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Grid.Column="0">
+                                        <Label Text="{Binding Destination}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Category}" />
+                                        <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" FontSize="12" TextColor="Gray" />
+                                        <Label Text="{Binding Details}" FontSize="12" IsVisible="{Binding Details, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding Amount, StringFormat='${0}'}" FontAttributes="Bold" VerticalOptions="Center" />
+                                </Grid>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>

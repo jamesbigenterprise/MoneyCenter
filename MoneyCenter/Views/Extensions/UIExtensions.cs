@@ -11,13 +11,13 @@ namespace MoneyCenter.Views.Extensions
 {
     public static class UIExtensions
     {
-        public static VerticalStackLayout Spacing(this VerticalStackLayout layout, double spacing) 
+        public static VerticalStackLayout Spacing(this VerticalStackLayout layout, double spacing)
         {
             layout.Spacing = spacing;
             return layout;
         }
 
-        public static Image ApplyMaterialIcon(this Image image, string iconName, Color color, double size) 
+        public static Image ApplyMaterialIcon(this Image image, string iconName, Color color, double size)
         {
             image.Source = new FontImageSource
             {
@@ -29,7 +29,7 @@ namespace MoneyCenter.Views.Extensions
             return image;
         }
 
-        public static BoxView MakeDivider(this BoxView boxView, Color color) 
+        public static BoxView MakeDivider(this BoxView boxView, Color color)
         {
             boxView.Color = Colors.White;
             return boxView;

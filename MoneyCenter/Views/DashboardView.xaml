@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
+             x:Class="MoneyCenter.DashboardView">
+
+
+    <Grid RowDefinitions="Auto,*" Padding="10">
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10">
+            <Label Text="Dashboard" FontSize="24" FontAttributes="Bold" />
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="{Binding CurrentMonthDisplay}" FontSize="18" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="Add Month" Command="{Binding AddNewMonthCommand}" />
+            </Grid>
+
+            <Border StrokeThickness="1" Padding="10">
+                <Grid ColumnDefinitions="*,*">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Monthly Income" />
+                        <Entry Text="{Binding CurrentIncome, Mode=TwoWay}" Keyboard="Numeric" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Text="Monthly Expenses" />
+                        <Label Text="{Binding CurrentExpenses}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Main Dashboard Content -->
+        <ScrollView Grid.Row="1" Margin="0,15,0,0">
+            <VerticalStackLayout Spacing="15">
+                <!-- Income & Expense Summary -->
+                <Border StrokeThickness="1" Padding="15">
+                    <VerticalStackLayout>
+                        <Label Text="Summary" FontAttributes="Bold" />
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Total Income:" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalIncome, StringFormat='${0}'}" />
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="Total Expenses:" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalExpenses, StringFormat='${0}'}" />
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="Balance:" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalBalance, StringFormat='${0}'}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Recent Expenses -->
+                <Border StrokeThickness="1" Padding="15">
+                    <VerticalStackLayout>
+                        <Label Text="Recent Expenses" FontAttributes="Bold" />
+                        <CollectionView ItemsSource="{Binding RecentExpenses}" EmptyView="No recent expenses">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="5" ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout Grid.Column="0">
+                                            <Label Text="{Binding Destination}" FontAttributes="Bold" />
+                                            <Label Text="{Binding Category}" />
+                                            <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" FontSize="12" TextColor="Gray" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding Amount, StringFormat='${0}'}" FontAttributes="Bold" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentView>

@@ -8,36 +8,61 @@ using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
 using Microsoft.Maui.Controls.Compatibility.Hosting;
+using MoneyCenter.Services;
+
 namespace MoneyCenter;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
-			.UseMauiCommunityToolkitCore()
-			.UseMauiCommunityToolkitMarkup()
-			.UseMauiCompatibility()
+            .UseMauiCommunityToolkitCore()
+            .UseMauiCommunityToolkitMarkup()
+            .UseMauiCompatibility()
             .ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-				fonts.AddFont("MaterialIcons-Regular.ttf", nameof(MaterialIcon));
-			});
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                fonts.AddFont("MaterialIcons-Regular.ttf", nameof(MaterialIcon));
+            });
 
-#if DEBUG
+        #if DEBUG
         builder.Logging.AddDebug();
-#endif
-		builder.Services.AddSingleton<HomeView>();
-        builder.Services.AddSingleton<HomeViewModel>();
-		builder.Services.AddSingleton <IModel>(new MoneyCenterModel());
+        #endif
+        // Core services
+        builder.Services.AddSingleton<IModel, MoneyCenterModel>();
+
+        // MainView and MainViewModel
+        builder.Services.AddSingleton<MainView>();
+        builder.Services.AddSingleton<MainViewModel>();
+
+        builder.Services.AddSingleton<IDeviceDisplay>(DeviceDisplay.Current);
 
         builder.Services.AddTransient<NewEntryView>();
         builder.Services.AddTransient<NewEntryViewModel>();
 
+        builder.Services.AddSingleton<IFinancialService, FinancialService>();
+        builder.Services.AddSingleton<IToastService, ToastService>();
+
+        builder.Services.AddTransient<DashboardViewModel>();
+        builder.Services.AddTransient<DashboardView>();
+
+        builder.Services.AddTransient<ExpensesViewModel>();
+        builder.Services.AddTransient<ExpensesView>();
+
+        builder.Services.AddTransient<SavingsViewModel>();
+        builder.Services.AddTransient<SavingsView>();
+
+        builder.Services.AddTransient<BudgetsViewModel>();
+        builder.Services.AddTransient<BudgetsView>();
+
+        builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<SettingsView>();
+
         return builder.Build();
-	}
+    }
 }
