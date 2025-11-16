@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
+             xmlns:converters="clr-namespace:MoneyCenter.Converters"
              x:Class="MoneyCenter.MainView"
              Title="Financial Dashboard">
 

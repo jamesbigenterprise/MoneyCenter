@@ -15,7 +15,7 @@ namespace MoneyCenter.ViewModel.Tests
         {
             
             _modelMock = new Mock<IModel>();
-            //_viewmodel = new MainViewModel(_modelMock.Object);
+            //_viewmodel =   new MainViewModel(_modelMock.Object);
 
         }
 

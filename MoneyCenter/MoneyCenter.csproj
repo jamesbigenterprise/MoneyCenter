@@ -4,17 +4,22 @@
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
     <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
     <!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
+	
 	<OutputType Condition="'$(TargetFramework)' != 'net8.0'">Exe</OutputType>
     <RootNamespace>MoneyCenter</RootNamespace>
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
     <ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	  
     <!-- Display name -->
     <ApplicationTitle>MoneyCenter</ApplicationTitle>
+	  
     <!-- App Identifier -->
     <ApplicationId>com.companyname.moneycenter</ApplicationId>
     <ApplicationIdGuid>46c72de3-dd8c-42e9-9e59-b63e3a8e7302</ApplicationIdGuid>
-    <!-- Versions -->
+    
+	  <!-- Versions -->
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
 	  <!--<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>-->
@@ -55,9 +60,9 @@
     <ProjectReference Include="..\MoneyCenter.Models\MoneyCenter.Model.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="MainView.xaml.cs">
+    <!--<Compile Update="MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
-    </Compile>
+    </Compile>-->
     <Compile Update="Views\EntryDetailView.xaml.cs">
       <DependentUpon>EntryDetailView.xaml</DependentUpon>
     </Compile>
