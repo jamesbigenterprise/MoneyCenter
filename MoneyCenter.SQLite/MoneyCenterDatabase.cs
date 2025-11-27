@@ -11,20 +11,15 @@ namespace MoneyCenter.SQLiteWrapper
         SQLiteAsyncConnection Database;
         public MoneyCenterDatabase()
         {
-            if (Database is not null)
+            if (Database != null)
                 return;
             Database = new SQLiteAsyncConnection(DatabaseConfig.DatabasePath, DatabaseConfig.Flags);
         }
-        private async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
             await Database.CreateTableAsync<SingleEntryDataModel>();
         }
-        public static async Task<MoneyCenterDatabase> CreateAsync() 
-        {
-            var db = new MoneyCenterDatabase();
-            await db.InitializeAsync();
-            return db;
-        }
+
         public async Task<List<SingleEntryDataModel>> GetAllEntries() 
         {
             return await Database.Table<SingleEntryDataModel>().ToListAsync();
