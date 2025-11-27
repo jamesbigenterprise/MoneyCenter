@@ -1,14 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
-using MoneyCenter.Model;
-using MoneyCenter.ViewModel;
-using MoneyCenter.Views;
-using CommunityToolkit.Mvvm;
-using MoneyCenter.Views.Icons;
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
+using CommunityToolkit.Mvvm;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Compatibility.Hosting;
+using MoneyCenter.Model;
 using MoneyCenter.Services;
+using MoneyCenter.SQLiteWrapper;
+using MoneyCenter.ViewModel;
+using MoneyCenter.Views;
+using MoneyCenter.Views.Icons;
 
 namespace MoneyCenter;
 
@@ -35,10 +36,16 @@ public static class MauiProgram
         #endif
         // Core services
         builder.Services.AddSingleton<IModel, MoneyCenterModel>();
+        builder.Services.AddSingleton<MoneyCenterDatabase>();
 
         // MainView and MainViewModel
         builder.Services.AddSingleton<MainView>();
         builder.Services.AddSingleton<MainViewModel>();
+        builder.Services.AddSingleton<WelcomePage>();
+
+        builder.Services.AddSingleton<WelcomeViewModel>();
+        builder.Services.AddSingleton <PermissionsPage>();
+        builder.Services.AddSingleton<PermissionsViewModel>();
 
         builder.Services.AddSingleton<IDeviceDisplay>(DeviceDisplay.Current);
 

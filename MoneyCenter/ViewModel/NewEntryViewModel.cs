@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MoneyCenter.Schema;
+using MoneyCenter.Model;
 
 namespace MoneyCenter.ViewModel
 {
@@ -10,12 +11,13 @@ namespace MoneyCenter.ViewModel
 
         [ObservableProperty]
         private NewEntryInputData newEntryModel = new();
-        private MoneyCenter.Model.MoneyCenterModel model = new();
+        private readonly IModel model;
         private MainViewModel _home;
-        public NewEntryViewModel(MainViewModel vm) 
+        public NewEntryViewModel(MainViewModel vm, IModel model) 
         {
 
             _home = vm;
+            this.model = model;
 
         }
 
@@ -33,8 +35,7 @@ namespace MoneyCenter.ViewModel
         }
         private async Task saveEntry() 
         {
-            //redundant check since it is initialized in the contructor, add a validate inputs method instead
-
+            // Add input validation here if needed
                 SingleEntryDataModel singleEntry = new SingleEntryDataModel
                 {
                     Date = newEntryModel.Date,

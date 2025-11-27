@@ -5,36 +5,41 @@ namespace MoneyCenter.Model
 {
     public class MoneyCenterModel : IModel
     {
-        private MoneyCenterDatabase? databaseHelper;
-        public MoneyCenterModel() 
+        private readonly MoneyCenterDatabase _database;
+
+        public MoneyCenterModel(MoneyCenterDatabase database)
         {
-        }
-        public async Task InitializeDatabase() 
-        {
-            if (databaseHelper == null) 
+            if (database == null) 
             {
-                databaseHelper = await MoneyCenterDatabase.CreateAsync();
+                //TODO have the permissions page handle this instead of throwing an exception
+
+                throw new ArgumentNullException(nameof(database));
             }
-            //Research the best way to check if the initialization was succesful
+
+            _database = database;
         }
 
-        public async Task<List<SingleEntryDataModel>> GetAllEntries() 
+        public async Task InitializeDatabase()
         {
-            await InitializeDatabase();
-            var allItems = await databaseHelper.GetAllEntries();
-            return allItems;
-        }
-        public async Task DeleteSingleEntry(int id) 
-        {
-            await InitializeDatabase();
-            int response = await databaseHelper.DeleteEntryByID(id);
+            await _database.InitializeAsync();
         }
 
-        public async Task AddEntry(SingleEntryDataModel entry) 
+        public async Task<List<SingleEntryDataModel>> GetAllEntries()
         {
             await InitializeDatabase();
-            await databaseHelper.InsertEntry(entry);
+            return await _database.GetAllEntries();
+        }
 
+        public async Task DeleteSingleEntry(int id)
+        {
+            await InitializeDatabase();
+            await _database.DeleteEntryByID(id);
+        }
+
+        public async Task AddEntry(SingleEntryDataModel entry)
+        {
+            await InitializeDatabase();
+            await _database.InsertEntry(entry);
         }
     }
 }
