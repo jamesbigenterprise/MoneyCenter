@@ -1,23 +1,24 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MoneyCenter.SQLiteWrapper;
+using MoneyCenter.Model;
 using System.Threading.Tasks;
 
 namespace MoneyCenter.ViewModel
 {
     public partial class PermissionsViewModel : ObservableObject
     {
-        private readonly MoneyCenterDatabase _database;
+        private readonly IModel _model;
 
-        public PermissionsViewModel(MoneyCenterDatabase database)
+        public PermissionsViewModel(IModel model)
         {
-            _database = database;
+            _model = model;
         }
 
         [RelayCommand]
         public async Task FinishSetup()
         {
-            await _database.InitializeAsync();
+            await _model.InitializeDatabase();
+            await _model.SeedInitialData();
             await Shell.Current.GoToAsync(nameof(MainView));
         }
     }

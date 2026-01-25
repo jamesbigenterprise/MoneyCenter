@@ -1,21 +1,21 @@
 ﻿using CommunityToolkit.Maui.ApplicationModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MoneyCenter.Services;
+using MoneyCenter.Model;
+using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 using System.Collections.ObjectModel;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MoneyCenter.ViewModel;
 
 public partial class MainViewModel : ObservableObject
 {
-    private readonly IFinancialService _financialService;
+    private readonly IModel _model;
     private readonly IDeviceDisplay _deviceDisplay;
 
-    public MainViewModel(IFinancialService financialService, IDeviceDisplay deviceDisplay)
+    public MainViewModel(IModel model, IDeviceDisplay deviceDisplay)
     {
-        _financialService = financialService;
+        _model = model;
         _deviceDisplay = deviceDisplay;
 
         // Initialize with dashboard view
@@ -62,19 +62,28 @@ public partial class MainViewModel : ObservableObject
         ActiveView = view;
     }
 
-    private void InitializeData()
+    private async void InitializeData()
     {
         currentMonth = DateTime.Now.ToString("yyyy-MM");
         visibleYears = new List<int> { DateTime.Now.Year };
 
-        // Initialize with default data from service
-        budgets = _financialService.GetInitialBudgets();
-        masterCategories = _financialService.GetMasterCategories();
-        data = _financialService.InitializeYearData(DateTime.Now.Year);
+        // Initialize with default data from model
+        var schemaBudgets = await _model.GetBudgets();
+        var allCategories = await _model.GetMasterCategories();
+        budgets = schemaBudgets.Select(b => b.ToViewModel(allCategories)).ToList();
+        
+        var schemaCategories = await _model.GetMasterCategories();
+        masterCategories = schemaCategories.Select(c => c.ToViewModel()).ToList();
+        
+        var schemaData = await _model.GetAllData();
+        var allExpenses = await _model.GetAllExpenses();
+        data = schemaData
+            .Where(kvp => kvp.Key.StartsWith(DateTime.Now.Year.ToString()))
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToViewModel(allExpenses));
     }
 
     [RelayCommand]
-    private void AddNewMonth()
+    private async Task AddNewMonth()
     {
         // Get the last month in the data
         var lastMonth = Data.Keys.OrderBy(k => k).LastOrDefault() ?? CurrentMonth;
@@ -85,15 +94,13 @@ public partial class MainViewModel : ObservableObject
         var defaultBudget = Budgets.FirstOrDefault(b => b.IsDefault);
         var incomeFromBudget = defaultBudget?.Categories.FirstOrDefault(c => c.Type == "income")?.Amount ?? 5000;
 
-        // Add the new month to data
-        var initialData = new MonthlyData
-        {
-            Income = incomeFromBudget,
-            Expenses = new List<Expense>(),
-            BudgetId = defaultBudget?.Id
-        };
+        // Add the new month via model
+        await _model.AddNewMonth();
 
-        Data[newMonth] = initialData;
+        // Reload the data
+        var schemaData = await _model.GetAllData();
+        var allExpenses = await _model.GetAllExpenses();
+        data = schemaData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToViewModel(allExpenses));
 
         // Check if we need to add a new year
         var newYear = newMonthDate.Year;
@@ -107,15 +114,21 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddYear(string direction)
+    private async Task AddYear(string direction)
     {
         int currentEdgeYear = direction == "prev" ? VisibleYears.Min() : VisibleYears.Max();
         int newYear = direction == "prev" ? currentEdgeYear - 1 : currentEdgeYear + 1;
 
         if (!VisibleYears.Contains(newYear))
         {
-            // Add the year's data
-            var yearData = _financialService.InitializeYearData(newYear);
+            // Get all data including the new year
+            var schemaData = await _model.GetAllData();
+            var allExpenses = await _model.GetAllExpenses();
+            var allData = schemaData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToViewModel(allExpenses));
+            
+            // Filter for the new year's data
+            var yearData = allData.Where(kvp => kvp.Key.StartsWith(newYear.ToString()));
+            
             foreach (var kvp in yearData)
             {
                 Data[kvp.Key] = kvp.Value;

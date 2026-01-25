@@ -1,16 +1,15 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace MoneyCenter.ViewModel.Objects
+namespace MoneyCenter.Schema
 {
     public class MonthlyData
     {
+        [PrimaryKey]
         public string Month { get; set; } = string.Empty;
         public decimal Income { get; set; }
-        public List<Expense> Expenses { get; set; } = new List<Expense>();
         public string? BudgetId { get; set; }
     }
 }
