@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Maui.ApplicationModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MoneyCenter.Model;
 using MoneyCenter.Services;
+using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 using System.Collections.ObjectModel;
 
@@ -9,12 +11,12 @@ namespace MoneyCenter.ViewModel;
 
 public partial class ExpensesViewModel : ObservableObject
 {
-    private readonly IFinancialService _financialService;
+    private readonly IModel _model;
     private readonly IToastService _toastService;
 
-    public ExpensesViewModel(IFinancialService financialService, IToastService toastService)
+    public ExpensesViewModel(IModel model, IToastService toastService)
     {
-        _financialService = financialService;
+        _model = model;
         _toastService = toastService;
 
         // Initialize data
@@ -62,9 +64,13 @@ public partial class ExpensesViewModel : ObservableObject
     [ObservableProperty]
     private bool isEditing;
 
-    public void LoadData()
+    public async void LoadData()
     {
-        var allData = _financialService.GetAllData();
+        var schemaAllData = await _model.GetAllData();
+        var allExpenses = await _model.GetAllExpenses();
+        var allData = schemaAllData.ToDictionary(
+            kvp => kvp.Key, 
+            kvp => kvp.Value.ToViewModel(allExpenses));
         var monthList = allData.Keys.OrderByDescending(k => k).ToList();
 
         // Update available months
@@ -81,7 +87,9 @@ public partial class ExpensesViewModel : ObservableObject
         }
 
         // Load budgets
-        var budgetList = _financialService.GetBudgets();
+        var schemaBudgets = await _model.GetBudgets();
+        var allCategories = await _model.GetMasterCategories();
+        var budgetList = schemaBudgets.Select(b => b.ToViewModel(allCategories)).ToList();
         Budgets.Clear();
         foreach (var budget in budgetList)
         {
@@ -100,33 +108,43 @@ public partial class ExpensesViewModel : ObservableObject
         }
 
         // Load categories
-        var allCategories = _financialService.GetAllCategories();
+        var categoryNames = await _model.GetAllCategories();
         Categories.Clear();
-        foreach (var category in allCategories)
+        foreach (var category in categoryNames)
         {
             Categories.Add(category);
         }
 
         // Load current month's expenses
-        LoadExpenses();
+        await LoadExpenses();
     }
 
     partial void OnSelectedMonthChanged(string value)
     {
         if (!string.IsNullOrEmpty(value))
         {
-            LoadExpenses();
+            Task.Run(async () => await LoadExpensesAndUpdateBudget());
+        }
+    }
 
-            // Update selected budget
-            var allData = _financialService.GetAllData();
-            if (allData.ContainsKey(value))
+    private async Task LoadExpensesAndUpdateBudget()
+    {
+        await LoadExpenses();
+
+        // Update selected budget
+        var schemaAllData = await _model.GetAllData();
+        var allExpenses = await _model.GetAllExpenses();
+        var allData = schemaAllData.ToDictionary(
+            kvp => kvp.Key, 
+            kvp => kvp.Value.ToViewModel(allExpenses));
+        
+        if (allData.ContainsKey(SelectedMonth))
+        {
+            var monthData = allData[SelectedMonth];
+            var monthBudget = Budgets.FirstOrDefault(b => b.Id == monthData.BudgetId);
+            if (monthBudget != null)
             {
-                var monthData = allData[value];
-                var monthBudget = Budgets.FirstOrDefault(b => b.Id == monthData.BudgetId);
-                if (monthBudget != null)
-                {
-                    SelectedBudget = monthBudget;
-                }
+                SelectedBudget = monthBudget;
             }
         }
     }
@@ -135,28 +153,22 @@ public partial class ExpensesViewModel : ObservableObject
     {
         if (value != null && !string.IsNullOrEmpty(SelectedMonth))
         {
-            _financialService.SetBudgetForMonth(value.Id, SelectedMonth);
+            _model.SetBudgetForMonth(value.Id, SelectedMonth);
         }
     }
 
-    private void LoadExpenses()
+    private async Task LoadExpenses()
     {
         if (string.IsNullOrEmpty(SelectedMonth))
             return;
 
-        var allData = _financialService.GetAllData();
-        if (allData.ContainsKey(SelectedMonth))
+        var monthExpenses = await _model.GetExpensesByMonth(SelectedMonth);
+        var expenses = monthExpenses.Select(e => e.ToViewModel()).ToList();
+        
+        CurrentExpenses.Clear();
+        foreach (var expense in expenses.OrderByDescending(e => e.Date))
         {
-            var expenses = allData[SelectedMonth].Expenses;
-            CurrentExpenses.Clear();
-            foreach (var expense in expenses.OrderByDescending(e => e.Date))
-            {
-                CurrentExpenses.Add(expense);
-            }
-        }
-        else
-        {
-            CurrentExpenses.Clear();
+            CurrentExpenses.Add(expense);
         }
     }
 
@@ -188,16 +200,18 @@ public partial class ExpensesViewModel : ObservableObject
         if (!string.IsNullOrWhiteSpace(result))
         {
             // Add new category to master list
-            await _financialService.AddCategoryAsync(new BudgetCategory
+            var newCategory = new BudgetCategory
             {
                 Name = result,
                 Amount = 0,
                 Type = "expense",
                 IsRecurring = false
-            });
+            };
+            
+            await _model.AddCategoryAsync(newCategory.ToSchema());
 
             // Reload categories
-            var allCategories = _financialService.GetAllCategories();
+            var allCategories = await _model.GetAllCategories();
             Categories.Clear();
             foreach (var category in allCategories)
             {
@@ -244,13 +258,13 @@ public partial class ExpensesViewModel : ObservableObject
         {
             // Update existing expense
             expense.Id = EditingExpense.Id;
-            await _financialService.UpdateExpense(SelectedMonth, expense);
+            await _model.UpdateExpense(SelectedMonth, expense.ToSchema());
             _toastService.Show("Expense updated");
         }
         else
         {
             // Add new expense
-            await _financialService.AddExpense(SelectedMonth, expense);
+            await _model.AddExpense(SelectedMonth, expense.ToSchema());
             _toastService.Show("Expense added");
         }
 
@@ -258,7 +272,7 @@ public partial class ExpensesViewModel : ObservableObject
         ResetForm();
 
         // Reload expenses
-        LoadExpenses();
+        await LoadExpenses();
     }
 
     [RelayCommand]
@@ -289,9 +303,9 @@ public partial class ExpensesViewModel : ObservableObject
 
         if (confirm)
         {
-            await _financialService.DeleteExpense(SelectedMonth, expense.Id);
+            await _model.DeleteExpense(SelectedMonth, expense.Id);
             _toastService.Show("Expense deleted");
-            LoadExpenses();
+            await LoadExpenses();
         }
     }
 

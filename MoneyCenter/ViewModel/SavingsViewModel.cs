@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using MoneyCenter.Model;
 using MoneyCenter.Services;
+using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 using System;
 using System.Collections.Generic;
@@ -12,11 +14,11 @@ namespace MoneyCenter.ViewModel
 {
     public partial class SavingsViewModel : ObservableObject
     {
-        private readonly IFinancialService _financialService;
+        private readonly IModel _model;
 
-        public SavingsViewModel(IFinancialService financialService)
+        public SavingsViewModel(IModel model)
         {
-            _financialService = financialService;
+            _model = model;
             LoadSavings();
         }
 
@@ -26,10 +28,17 @@ namespace MoneyCenter.ViewModel
         [ObservableProperty]
         private ObservableCollection<BudgetCategory> savingsCategories = new();
 
-        private void LoadSavings()
+        private async void LoadSavings()
         {
-            var budgets = _financialService.GetBudgets();
-            var allData = _financialService.GetAllData();
+            var schemaBudgets = await _model.GetBudgets();
+            var allCategories = await _model.GetMasterCategories();
+            var budgets = schemaBudgets.Select(b => b.ToViewModel(allCategories)).ToList();
+            
+            var schemaAllData = await _model.GetAllData();
+            var allExpenses = await _model.GetAllExpenses();
+            var allData = schemaAllData.ToDictionary(
+                kvp => kvp.Key, 
+                kvp => kvp.Value.ToViewModel(allExpenses));
 
             var savingsCats = budgets
                 .SelectMany(b => b.Categories)
@@ -46,11 +55,10 @@ namespace MoneyCenter.ViewModel
 
             SavingsCategories = new ObservableCollection<BudgetCategory>(savingsCats);
 
-            var allExpenses = allData.Values.SelectMany(m => m.Expenses);
-            TotalSavings = allExpenses
+            var allExpensesList = allData.Values.SelectMany(m => m.Expenses);
+            TotalSavings = allExpensesList
                 .Where(e => savingsCats.Any(c => c.Name == e.Category))
                 .Sum(e => e.Amount);
         }
     }
-
 }

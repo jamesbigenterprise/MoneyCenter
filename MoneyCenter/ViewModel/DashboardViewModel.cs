@@ -1,14 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
-using MoneyCenter.Services;
+using MoneyCenter.Model;
+using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 
 namespace MoneyCenter.ViewModel;
 
 public partial class DashboardViewModel : ObservableObject
 {
-    private readonly IFinancialService _financialService;
+    private readonly IModel _model;
 
     [ObservableProperty]
     private string currentMonthDisplay;
@@ -31,18 +32,24 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<Expense> recentExpenses = new();
 
-    public DashboardViewModel(IFinancialService financialService)
+    public DashboardViewModel(IModel model)
     {
-        _financialService = financialService;
+        _model = model;
 
         // Initialize the view with data
         LoadDashboardData();
     }
 
-    public void LoadDashboardData()
+    public async void LoadDashboardData()
     {
         var currentMonthKey = DateTime.Now.ToString("yyyy-MM");
-        var allData = _financialService.GetAllData();
+        var schemaAllData = await _model.GetAllData();
+        var allExpenses = await _model.GetAllExpenses();
+        
+        var allData = schemaAllData.ToDictionary(
+            kvp => kvp.Key, 
+            kvp => kvp.Value.ToViewModel(allExpenses));
+        
         var currentData = allData.ContainsKey(currentMonthKey) ?
             allData[currentMonthKey] :
             new MonthlyData { Income = 0, Expenses = new List<Expense>() };
@@ -57,14 +64,14 @@ public partial class DashboardViewModel : ObservableObject
         TotalBalance = TotalIncome - TotalExpenses;
 
         // Get recent expenses
-        var allExpenses = allData
+        var recentExpenses = allData
             .SelectMany(d => d.Value.Expenses)
             .OrderByDescending(e => e.Date)
             .Take(5)
             .ToList();
 
         RecentExpenses.Clear();
-        foreach (var expense in allExpenses)
+        foreach (var expense in recentExpenses)
         {
             RecentExpenses.Add(expense);
         }
@@ -73,13 +80,13 @@ public partial class DashboardViewModel : ObservableObject
     partial void OnCurrentIncomeChanged(decimal value)
     {
         // Update the income for the current month
-        _financialService.SetIncomeForMonth(value, DateTime.Now.ToString("yyyy-MM"));
+        _model.SetIncomeForMonth(value, DateTime.Now.ToString("yyyy-MM"));
     }
 
     [RelayCommand]
     public async Task AddNewMonth()
     {
-        await _financialService.AddNewMonth();
+        await _model.AddNewMonth();
         LoadDashboardData();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MoneyCenter.Model;
 using MoneyCenter.Services;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,12 @@ namespace MoneyCenter.ViewModel
 {
     public partial class SettingsViewModel : ObservableObject
     {
-        private readonly IFinancialService _financialService;
+        private readonly IModel _model;
         private readonly IToastService _toastService;
 
-        public SettingsViewModel(IFinancialService financialService, IToastService toastService)
+        public SettingsViewModel(IModel model, IToastService toastService)
         {
-            _financialService = financialService;
+            _model = model;
             _toastService = toastService;
         }
 
@@ -36,5 +37,4 @@ namespace MoneyCenter.ViewModel
             _toastService.Show("Imported data (not really, this is a placeholder).");
         }
     }
-
 }

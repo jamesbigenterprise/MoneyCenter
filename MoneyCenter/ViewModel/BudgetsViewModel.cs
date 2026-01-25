@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using MoneyCenter.Services;
+using MoneyCenter.Model;
+using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 using System;
 using System.Collections.Generic;
@@ -12,22 +13,27 @@ namespace MoneyCenter.ViewModel
 {
     public partial class BudgetsViewModel : ObservableObject
     {
-        private readonly IFinancialService _financialService;
+        private readonly IModel _model;
 
-        public BudgetsViewModel(IFinancialService financialService)
+        public BudgetsViewModel(IModel model)
         {
-            _financialService = financialService;
+            _model = model;
             LoadBudgets();
         }
 
         [ObservableProperty]
         private ObservableCollection<Budget> budgets = new();
 
-        private void LoadBudgets()
+        private async void LoadBudgets()
         {
-            var list = _financialService.GetBudgets();
-            Budgets = new ObservableCollection<Budget>(list);
+            var schemaBudgets = await _model.GetBudgets();
+            var allCategories = await _model.GetMasterCategories();
+            
+            var viewModelBudgets = schemaBudgets
+                .Select(b => b.ToViewModel(allCategories))
+                .ToList();
+            
+            Budgets = new ObservableCollection<Budget>(viewModelBudgets);
         }
     }
-
 }
