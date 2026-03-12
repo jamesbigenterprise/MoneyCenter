@@ -15,11 +15,8 @@ namespace MoneyCenter.Model
         {
             if (database == null)
             {
-                //TODO have the permissions page handle this instead of throwing an exception
-
                 throw new ArgumentNullException(nameof(database));
             }
-
             _database = database;
         }
 
@@ -28,191 +25,57 @@ namespace MoneyCenter.Model
             await _database.InitializeAsync();
         }
 
-        //public async Task<List<SingleEntryDataModel>> GetAllEntries()
-        //{
-        //    await InitializeDatabase();
-        //    return await _database.GetAllEntries();
-        //}
-
-
-        public async Task<Dictionary<string, Schema.MonthlyData>> GetAllData()
+        // Lookup month by name and year
+        public async Task<int?> GetMonthIdByName(string monthName, int yearId)
         {
             await InitializeDatabase();
-            var monthlyDataList = await _database.GetAllMonthlyDataAsync();
-            
-            return monthlyDataList.ToDictionary(m => m.Month, m => m);
+            var months = await _database.GetMonthsByYearAsync(yearId);
+            var match = months.FirstOrDefault(m => m.MonthName.Equals(monthName, StringComparison.OrdinalIgnoreCase));
+            return match?.Id;
         }
 
-        public async Task<List<Schema.Budget>> GetBudgets()
+        // Lookup month by number and year
+        public async Task<int?> GetMonthIdByNumber(int monthNumber, int yearId)
         {
             await InitializeDatabase();
-            return await _database.GetAllBudgetsAsync();
+            var months = await _database.GetMonthsByYearAsync(yearId);
+            var match = months.FirstOrDefault(m => m.MonthNumber == monthNumber);
+            return match?.Id;
         }
 
-        public async Task<List<string>> GetAllCategories()
+        public async Task<List<Expense>> GetExpensesByMonthId(int monthId)
         {
             await InitializeDatabase();
-            var categories = await _database.GetAllCategoriesAsync();
-            return categories.Select(c => c.Name).Distinct().ToList();
+            return await _database.GetExpensesByMonthIdAsync(monthId);
         }
 
-        public async Task<List<Schema.BudgetCategory>> GetMasterCategories()
+        public async Task AddExpense(int monthId, Expense expense)
         {
             await InitializeDatabase();
-            return await _database.GetAllCategoriesAsync();
-        }
-
-        public async Task<List<Schema.BudgetCategory>> GetCategoriesByBudgetId(string budgetId)
-        {
-            await InitializeDatabase();
-            return await _database.GetCategoriesByBudgetIdAsync(budgetId);
-        }
-
-        public async Task<List<Schema.Expense>> GetExpensesByMonth(string month)
-        {
-            await InitializeDatabase();
-            return await _database.GetExpensesByMonthAsync(month);
-        }
-
-        public async Task<List<Schema.Expense>> GetAllExpenses()
-        {
-            await InitializeDatabase();
-            return await _database.GetAllExpensesAsync();
-        }
-
-        public async Task AddCategoryAsync(Schema.BudgetCategory category)
-        {
-            await InitializeDatabase();
-            var existing = await _database.GetCategoryByNameAsync(category.Name);
-            if (existing != null) return;
-
-            await _database.InsertCategoryAsync(category);
-        }
-
-        public async Task AddExpense(string month, Schema.Expense expense)
-        {
-            await InitializeDatabase();
-            
-            // Ensure the month exists
-            var monthlyData = await _database.GetMonthlyDataAsync(month);
-            if (monthlyData == null)
-            {
-                var defaultBudget = (await _database.GetAllBudgetsAsync())
-                    .FirstOrDefault(b => b.IsDefault);
-                
-                monthlyData = new Schema.MonthlyData
-                {
-                    Month = month,
-                    Income = 0,
-                    BudgetId = defaultBudget?.Id
-                };
-                await _database.InsertMonthlyDataAsync(monthlyData);
-            }
-
-            // Set the MonthId and insert the expense
-            expense.MonthId = month;
+            expense.MonthId = monthId;
             await _database.InsertExpenseAsync(expense);
         }
 
-        public async Task UpdateExpense(string month, Schema.Expense expense)
+        public async Task UpdateExpense(int monthId, Schema.Expense expense)
         {
             await InitializeDatabase();
             
             var existingExpense = await _database.GetExpenseAsync(expense.Id);
             if (existingExpense != null)
             {
-                expense.MonthId = month;
+                expense.MonthId = monthId;
                 await _database.UpdateExpenseAsync(expense);
             }
         }
 
-        public async Task DeleteExpense(string month, string expenseId)
+        public async Task DeleteExpense(int monthId, string expenseId)
         {
             await InitializeDatabase();
             await _database.DeleteExpenseByIdAsync(expenseId);
         }
 
-        public async Task SetBudgetForMonth(string budgetId, string month)
-        {
-            await InitializeDatabase();
-            
-            var monthlyData = await _database.GetMonthlyDataAsync(month);
-            if (monthlyData == null)
-            {
-                monthlyData = new Schema.MonthlyData
-                {
-                    Month = month,
-                    Income = 0,
-                    BudgetId = budgetId
-                };
-                await _database.InsertMonthlyDataAsync(monthlyData);
-            }
-            else
-            {
-                monthlyData.BudgetId = budgetId;
-                await _database.UpdateMonthlyDataAsync(monthlyData);
-            }
-        }
-
-        public async Task SetIncomeForMonth(decimal income, string month)
-        {
-            await InitializeDatabase();
-            
-            var monthlyData = await _database.GetMonthlyDataAsync(month);
-            if (monthlyData == null)
-            {
-                monthlyData = new Schema.MonthlyData
-                {
-                    Month = month,
-                    Income = income,
-                    BudgetId = null
-                };
-                await _database.InsertMonthlyDataAsync(monthlyData);
-            }
-            else
-            {
-                monthlyData.Income = income;
-                await _database.UpdateMonthlyDataAsync(monthlyData);
-            }
-        }
-
-        public async Task<bool> AddNewMonth()
-        {
-            await InitializeDatabase();
-            
-            var allMonths = await _database.GetAllMonthlyDataAsync();
-            var lastMonth = allMonths.OrderBy(m => m.Month).LastOrDefault();
-            
-            if (lastMonth == null) return false;
-
-            var lastDate = DateTime.Parse($"{lastMonth.Month}-01");
-            var newDate = lastDate.AddMonths(1);
-            var newMonth = newDate.ToString("yyyy-MM");
-
-            var existingMonth = await _database.GetMonthlyDataAsync(newMonth);
-            if (existingMonth != null) return false;
-
-            var defaultBudget = (await _database.GetAllBudgetsAsync())
-                .FirstOrDefault(b => b.IsDefault);
-            
-            var defaultIncome = 0m;
-            if (defaultBudget != null)
-            {
-                var incomeCategory = (await _database.GetCategoriesByBudgetIdAsync(defaultBudget.Id))
-                    .FirstOrDefault(c => c.Type == "income");
-                defaultIncome = incomeCategory?.Amount ?? 0;
-            }
-
-            var newMonthlyData = new Schema.MonthlyData
-            {
-                Month = newMonth,
-                Income = defaultIncome,
-                BudgetId = defaultBudget?.Id
-            };
-
-            await _database.InsertMonthlyDataAsync(newMonthlyData);
-            return true;
-        }
+    
+       
 
         public async Task SeedInitialData()
         {
@@ -238,35 +101,11 @@ namespace MoneyCenter.Model
                 await _database.InsertAllCategoriesAsync(categories);
             }
 
-            var monthCount = await _database.GetMonthlyDataCountAsync();
-            if (monthCount == 0)
-            {
-                var yearData = InitializeYearData(DateTime.Now.Year);
-                await _database.InsertAllMonthlyDataAsync(yearData.Values);
-            }
+            // Add current year with all 12 months if it doesn't exist
+            int currentYear = DateTime.Now.Year;
+            await _database.AddYearWithMonthsAsync(currentYear);
         }
 
-        private Dictionary<string, Schema.MonthlyData> InitializeYearData(int year)
-        {
-            var yearData = new Dictionary<string, Schema.MonthlyData>();
-            var defaultBudget = GetInitialBudgets().FirstOrDefault(b => b.IsDefault);
-            var defaultIncome = GetCategoriesForBudget(defaultBudget)
-                .FirstOrDefault(c => c.Type == "income")?.Amount ?? 5000;
-
-            for (int i = 0; i < 12; i++)
-            {
-                var date = new DateTime(year, 1, 1).AddMonths(i);
-                var monthKey = date.ToString("yyyy-MM");
-                yearData[monthKey] = new Schema.MonthlyData
-                {
-                    Month = monthKey,
-                    Income = defaultIncome,
-                    BudgetId = defaultBudget?.Id
-                };
-            }
-
-            return yearData;
-        }
 
         private List<Schema.Budget> GetInitialBudgets()
         {
@@ -321,6 +160,96 @@ namespace MoneyCenter.Model
             }
 
             return new List<Schema.BudgetCategory>();
+        }
+
+        // Hierarchical methods for year/month/expense
+        public async Task<List<Schema.Year>> GetYears()
+        {
+            await InitializeDatabase();
+            return await _database.GetAllYearsAsync();
+        }
+
+        public async Task<List<Schema.Month>> GetMonthsByYear(int yearId)
+        {
+            await InitializeDatabase();
+            return await _database.GetMonthsByYearAsync(yearId);
+        }
+
+        public async Task AddYear(int yearValue)
+        {
+            await InitializeDatabase();
+            await _database.AddYearAsync(yearValue);
+        }
+
+        public Task<Dictionary<string, Expense>> GetAllData()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<Budget>> GetBudgets()
+        {
+            await InitializeDatabase();
+            return await _database.GetAllBudgetsAsync();
+        }
+
+        public Task<List<string>> GetAllCategories()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<BudgetCategory>> GetMasterCategories()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<BudgetCategory>> GetCategoriesByBudgetId(string budgetId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Expense>> GetExpensesByMonth(string month)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Expense>> GetAllExpenses()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddCategoryAsync(BudgetCategory category)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddExpense(string month, Expense expense)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateExpense(string month, Expense expense)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteExpense(string month, string expenseId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetBudgetForMonth(string budgetId, string month)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetIncomeForMonth(decimal income, string month)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> AddNewMonth()
+        {
+            throw new NotImplementedException();
         }
     }
 }

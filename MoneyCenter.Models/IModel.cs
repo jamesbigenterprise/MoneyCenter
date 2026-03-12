@@ -11,13 +11,11 @@ namespace MoneyCenter.Model
     {
         Task InitializeDatabase();
 
-        Task AddEntry(SingleEntryDataModel entry);
-
-        Task<Dictionary<string, MonthlyData>> GetAllData();
+        Task<Dictionary<string, Expense>> GetAllData();
 
         Task<List<Budget>> GetBudgets();
 
-        Task<List<string>> GetAllCategories();
+        Task<List<BudgetCategory>> GetAllCategories();
 
         Task<List<BudgetCategory>> GetMasterCategories();
         
@@ -42,5 +40,11 @@ namespace MoneyCenter.Model
         Task<bool> AddNewMonth();
 
         Task SeedInitialData();
+
+        // New for hierarchy
+        Task<List<Year>> GetYears();
+        Task<List<Month>> GetMonthsByYear(int yearId);
+        Task<List<Expense>> GetExpensesByMonthId(int monthId);
+        Task AddYear(int yearValue);
     }
 }

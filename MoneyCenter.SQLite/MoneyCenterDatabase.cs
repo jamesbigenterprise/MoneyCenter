@@ -1,9 +1,14 @@
 ﻿using Microsoft.VisualBasic;
 using MoneyCenter.Schema;
 using SQLite;
+using System.Threading.Tasks;
 
 namespace MoneyCenter.SQLiteWrapper
 {
+    //figure out initialization logic
+    // Some separate entities in the db are tightly coupled so I would not wand isolated pieces floating like a moth without a year
+    // The only single add function available should be the full 12 months and the year
+    //
     public class MoneyCenterDatabase
     {
         private SQLiteAsyncConnection _database;
@@ -22,29 +27,34 @@ namespace MoneyCenter.SQLiteWrapper
                 _database = new SQLiteAsyncConnection(DatabaseConfig.DatabasePath, DatabaseConfig.Flags);
             }
               
-
-            await _database.CreateTableAsync<SingleEntryDataModel>();
             await _database.CreateTableAsync<Budget>();
             await _database.CreateTableAsync<BudgetCategory>();
             await _database.CreateTableAsync<Expense>();
-            await _database.CreateTableAsync<MonthlyData>();
+            await _database.CreateTableAsync<Year>();
+            await _database.CreateTableAsync<Month>();
+        }
+
+        // Year CRUD
+        public async Task<int> AddYearAsync(int yearValue)
+        {
+            var existing = await _database.Table<Year>().FirstOrDefaultAsync(y => y.YearValue == yearValue);
+            if (existing != null)
+                return existing.Id;
+            var year = new Year { YearValue = yearValue };
+            await _database.InsertAsync(year);
+            return year.Id;
+        }
+
+        public async Task<Year> GetYearByIdAsync(int yearId)
+        {
+            return await _database.Table<Year>().FirstOrDefaultAsync(y => y.Id == yearId);
         }
 
         // SingleEntryDataModel CRUD
-        public async Task<List<SingleEntryDataModel>> GetAllEntries()
-        {
-            return await _database.Table<SingleEntryDataModel>().ToListAsync();
-        }
+      
+       
 
-        public async Task<int> DeleteEntryByID(int id)
-        {
-            return await _database.Table<SingleEntryDataModel>().DeleteAsync(entry => entry.Id == id);
-        }
-
-        public async Task<int> InsertEntry(SingleEntryDataModel entry)
-        {
-            return await _database.InsertAsync(entry);
-        }
+     
 
         // Budget CRUD
         public async Task<List<Budget>> GetAllBudgetsAsync()
@@ -126,7 +136,7 @@ namespace MoneyCenter.SQLiteWrapper
             return await _database.Table<Expense>().ToListAsync();
         }
 
-        public async Task<List<Expense>> GetExpensesByMonthAsync(string monthId)
+        public async Task<List<Expense>> GetExpensesByMonthAsync(int monthId)
         {
             return await _database.Table<Expense>()
                 .Where(e => e.MonthId == monthId)
@@ -166,46 +176,95 @@ namespace MoneyCenter.SQLiteWrapper
             return 0;
         }
 
-        // MonthlyData CRUD
-        public async Task<List<MonthlyData>> GetAllMonthlyDataAsync()
-        {
-            return await _database.Table<MonthlyData>().ToListAsync();
-        }
-
-        public async Task<MonthlyData> GetMonthlyDataAsync(string month)
-        {
-            return await _database.Table<MonthlyData>().FirstOrDefaultAsync(m => m.Month == month);
-        }
-
-        public async Task<int> InsertMonthlyDataAsync(MonthlyData data)
-        {
-            return await _database.InsertAsync(data);
-        }
-
-        public async Task<int> InsertAllMonthlyDataAsync(IEnumerable<MonthlyData> dataList)
-        {
-            return await _database.InsertAllAsync(dataList);
-        }
-
-        public async Task<int> UpdateMonthlyDataAsync(MonthlyData data)
-        {
-            return await _database.UpdateAsync(data);
-        }
-
-        public async Task<int> DeleteMonthlyDataAsync(MonthlyData data)
-        {
-            return await _database.DeleteAsync(data);
-        }
-
+      
         // Helper methods
         public async Task<int> GetBudgetCountAsync()
         {
             return await _database.Table<Budget>().CountAsync();
         }
 
-        public async Task<int> GetMonthlyDataCountAsync()
+        public async Task<int?> GetMonthIdAsync(string month, int year)
         {
-            return await _database.Table<MonthlyData>().CountAsync();
+            var yearRecord = await _database.Table<Year>().FirstOrDefaultAsync(y => y.YearValue == year);
+            if (yearRecord == null) return null;
+            return (await _database.Table<Month>()
+                .FirstOrDefaultAsync(m => m.MonthName == month && m.YearId == yearRecord.Id))?.Id;
+        }
+
+        public async Task<int?> CreateMonthAsync(string currentMonth, int currentYear)
+        {
+            // Ensure year exists
+            int yearId = await AddYearAsync(currentYear);
+            // Ensure not existing and create
+            int? existingMonth = await GetMonthIdAsync(currentMonth, currentYear);
+            if (existingMonth == null)
+            {
+                var newMonth = new Month
+                {
+                    MonthName = currentMonth,
+                    MonthNumber = DateTime.ParseExact(currentMonth, "MMMM", null).Month,
+                    YearId = yearId
+                };
+                await _database.InsertAsync(newMonth);
+                //return month id
+                return newMonth.Id;
+            }
+            return existingMonth;
+        }
+
+        public async Task<int> AddYearWithMonthsAsync(int yearValue)
+        {
+            // Check if year exists
+            var existingYear = await _database.Table<Year>().FirstOrDefaultAsync(y => y.YearValue == yearValue);
+            if (existingYear != null)
+                return existingYear.Id;
+
+            // Create year
+            var year = new Year { YearValue = yearValue };
+            await _database.InsertAsync(year);
+
+            // Create 12 months for this year
+            var monthNames = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.MonthNames;
+            for (int i = 1; i <= 12; i++)
+            {
+                var monthName = monthNames[i - 1];
+                if (string.IsNullOrEmpty(monthName)) continue; // skip empty
+                var newMonth = new Month
+                {
+                    YearId = year.Id,
+                    MonthNumber = i,
+                    MonthName = monthName
+                };
+                await _database.InsertAsync(newMonth);
+            }
+            return year.Id;
+        }
+
+        public async Task<List<Month>> GetMonthsByYearAsync(int yearId)
+        {
+            return await _database.Table<Month>()
+                .Where(m => m.YearId == yearId)
+                .OrderBy(m => m.MonthNumber)
+                .ToListAsync();
+        }
+
+        public async Task<List<Year>> GetAllYearsAsync()
+        {
+            return await _database.Table<Year>()
+                .OrderBy(y => y.YearValue)
+                .ToListAsync();
+        }
+
+        public async Task AddYearWithMonths(int yearValue)
+        {
+            await AddYearWithMonthsAsync(yearValue);
+        }
+
+        public async Task<List<Expense>> GetExpensesByMonthIdAsync(int monthId)
+        {
+            return await _database.Table<Expense>()
+                .Where(e => e.MonthId == monthId)
+                .ToListAsync();
         }
     }
 }

@@ -48,32 +48,7 @@ namespace MoneyCenter.ViewModel.Extensions
             };
         }
 
-        public static ViewModel.Objects.MonthlyData ToViewModel(this Schema.MonthlyData monthlyData, List<Schema.Expense> expenses = null)
-        {
-            if (monthlyData == null) return null;
-            return new ViewModel.Objects.MonthlyData
-            {
-                Month = monthlyData.Month,
-                Income = monthlyData.Income,
-                BudgetId = monthlyData.BudgetId,
-                Expenses = expenses?.Where(e => e.MonthId == monthlyData.Month)
-                    .Select(e => e.ToViewModel())
-                    .ToList() ?? new List<ViewModel.Objects.Expense>()
-            };
-        }
 
-        // To Schema
-        public static Schema.Budget ToSchema(this ViewModel.Objects.Budget budget)
-        {
-            if (budget == null) return null;
-            return new Schema.Budget
-            {
-                Id = budget.Id,
-                Name = budget.Name,
-                Description = budget.Description,
-                IsDefault = budget.IsDefault
-            };
-        }
 
         public static Schema.BudgetCategory ToSchema(this ViewModel.Objects.BudgetCategory category, string budgetId = null)
         {
@@ -89,13 +64,12 @@ namespace MoneyCenter.ViewModel.Extensions
             };
         }
 
-        public static Schema.Expense ToSchema(this ViewModel.Objects.Expense expense, string monthId = null)
+        public static Schema.Expense ToSchema(this ViewModel.Objects.Expense expense)
         {
             if (expense == null) return null;
             return new Schema.Expense
             {
                 Id = expense.Id,
-                MonthId = monthId ?? string.Empty,
                 Amount = expense.Amount,
                 Date = expense.Date,
                 Category = expense.Category,
@@ -104,15 +78,6 @@ namespace MoneyCenter.ViewModel.Extensions
             };
         }
 
-        public static Schema.MonthlyData ToSchema(this ViewModel.Objects.MonthlyData monthlyData)
-        {
-            if (monthlyData == null) return null;
-            return new Schema.MonthlyData
-            {
-                Month = monthlyData.Month,
-                Income = monthlyData.Income,
-                BudgetId = monthlyData.BudgetId
-            };
-        }
+        
     }
 }

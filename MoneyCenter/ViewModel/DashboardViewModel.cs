@@ -42,39 +42,10 @@ public partial class DashboardViewModel : ObservableObject
 
     public async void LoadDashboardData()
     {
-        var currentMonthKey = DateTime.Now.ToString("yyyy-MM");
-        var schemaAllData = await _model.GetAllData();
-        var allExpenses = await _model.GetAllExpenses();
+        ///TODO
         
-        var allData = schemaAllData.ToDictionary(
-            kvp => kvp.Key, 
-            kvp => kvp.Value.ToViewModel(allExpenses));
-        
-        var currentData = allData.ContainsKey(currentMonthKey) ?
-            allData[currentMonthKey] :
-            new MonthlyData { Income = 0, Expenses = new List<Expense>() };
-
-        CurrentMonthDisplay = DateTime.Parse($"{currentMonthKey}-01").ToString("MMMM yyyy");
-        CurrentIncome = currentData.Income;
-        CurrentExpenses = currentData.Expenses.Sum(e => e.Amount);
-
-        // Calculate totals across all data
-        TotalIncome = allData.Sum(d => d.Value.Income);
-        TotalExpenses = allData.Sum(d => d.Value.Expenses.Sum(e => e.Amount));
-        TotalBalance = TotalIncome - TotalExpenses;
-
-        // Get recent expenses
-        var recentExpenses = allData
-            .SelectMany(d => d.Value.Expenses)
-            .OrderByDescending(e => e.Date)
-            .Take(5)
-            .ToList();
-
-        RecentExpenses.Clear();
-        foreach (var expense in recentExpenses)
-        {
-            RecentExpenses.Add(expense);
-        }
+       
+   
     }
 
     partial void OnCurrentIncomeChanged(decimal value)

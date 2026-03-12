@@ -66,55 +66,21 @@ public partial class ExpensesViewModel : ObservableObject
 
     public async void LoadData()
     {
-        var schemaAllData = await _model.GetAllData();
-        var allExpenses = await _model.GetAllExpenses();
-        var allData = schemaAllData.ToDictionary(
-            kvp => kvp.Key, 
-            kvp => kvp.Value.ToViewModel(allExpenses));
-        var monthList = allData.Keys.OrderByDescending(k => k).ToList();
+        ///TODO
 
         // Update available months
-        AvailableMonths.Clear();
-        foreach (var month in monthList)
-        {
-            AvailableMonths.Add(month);
-        }
-
+       
         // Set current month if not already set
-        if (string.IsNullOrEmpty(SelectedMonth) && AvailableMonths.Count > 0)
-        {
-            SelectedMonth = AvailableMonths[0];
-        }
+        
 
         // Load budgets
-        var schemaBudgets = await _model.GetBudgets();
-        var allCategories = await _model.GetMasterCategories();
-        var budgetList = schemaBudgets.Select(b => b.ToViewModel(allCategories)).ToList();
-        Budgets.Clear();
-        foreach (var budget in budgetList)
-        {
-            Budgets.Add(budget);
-        }
+       
 
         // Select the budget for this month
-        if (!string.IsNullOrEmpty(SelectedMonth) && allData.ContainsKey(SelectedMonth))
-        {
-            var monthData = allData[SelectedMonth];
-            var monthBudget = budgetList.FirstOrDefault(b => b.Id == monthData.BudgetId);
-            if (monthBudget != null)
-            {
-                SelectedBudget = monthBudget;
-            }
-        }
+       
 
         // Load categories
-        var categoryNames = await _model.GetAllCategories();
-        Categories.Clear();
-        foreach (var category in categoryNames)
-        {
-            Categories.Add(category);
-        }
-
+       
         // Load current month's expenses
         await LoadExpenses();
     }
@@ -129,24 +95,11 @@ public partial class ExpensesViewModel : ObservableObject
 
     private async Task LoadExpensesAndUpdateBudget()
     {
+        ///TODO
         await LoadExpenses();
 
         // Update selected budget
-        var schemaAllData = await _model.GetAllData();
-        var allExpenses = await _model.GetAllExpenses();
-        var allData = schemaAllData.ToDictionary(
-            kvp => kvp.Key, 
-            kvp => kvp.Value.ToViewModel(allExpenses));
-        
-        if (allData.ContainsKey(SelectedMonth))
-        {
-            var monthData = allData[SelectedMonth];
-            var monthBudget = Budgets.FirstOrDefault(b => b.Id == monthData.BudgetId);
-            if (monthBudget != null)
-            {
-                SelectedBudget = monthBudget;
-            }
-        }
+       
     }
 
     partial void OnSelectedBudgetChanged(Budget value)
@@ -211,7 +164,7 @@ public partial class ExpensesViewModel : ObservableObject
             await _model.AddCategoryAsync(newCategory.ToSchema());
 
             // Reload categories
-            var allCategories = await _model.GetAllCategories();
+            List<Schema.BudgetCategory> allCategories = await _model.GetAllCategories();
             Categories.Clear();
             foreach (var category in allCategories)
             {
