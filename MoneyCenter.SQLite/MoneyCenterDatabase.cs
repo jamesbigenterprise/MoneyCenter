@@ -28,10 +28,15 @@ namespace MoneyCenter.SQLiteWrapper
             }
               
             await _database.CreateTableAsync<Budget>();
-            await _database.CreateTableAsync<BudgetCategory>();
+            await _database.CreateTableAsync<MasterCategory>();
+            await _database.CreateTableAsync<BudgetMasterCategory>();
+            await _database.CreateTableAsync<PaymentAccount>();
+            await _database.CreateTableAsync<SavingsPod>();
             await _database.CreateTableAsync<Expense>();
             await _database.CreateTableAsync<Year>();
             await _database.CreateTableAsync<Month>();
+            // Keep old BudgetCategory for now during transition
+            await _database.CreateTableAsync<BudgetCategory>();
         }
 
         // Year CRUD
@@ -128,6 +133,11 @@ namespace MoneyCenter.SQLiteWrapper
         public async Task<int> DeleteCategoryAsync(BudgetCategory category)
         {
             return await _database.DeleteAsync(category);
+        }
+
+        public async Task<int> InsertAllMasterCategoriesAsync(IEnumerable<MasterCategory> categories)
+        {
+            return await _database.InsertAllAsync(categories);
         }
 
         // Expense CRUD
@@ -265,6 +275,207 @@ namespace MoneyCenter.SQLiteWrapper
             return await _database.Table<Expense>()
                 .Where(e => e.MonthId == monthId)
                 .ToListAsync();
+        }
+
+        // MasterCategory CRUD
+        public async Task<List<MasterCategory>> GetAllMasterCategoriesAsync()
+        {
+            return await _database.Table<MasterCategory>().ToListAsync();
+        }
+
+        public async Task<MasterCategory> GetMasterCategoryByIdAsync(int id)
+        {
+            return await _database.Table<MasterCategory>().FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<MasterCategory> GetMasterCategoryByNameAsync(string name)
+        {
+            return await _database.Table<MasterCategory>()
+                .FirstOrDefaultAsync(c => c.Name.ToUpper() == name.ToUpper());
+        }
+
+        public async Task<List<MasterCategory>> GetMasterCategoriesByTypeAsync(string type)
+        {
+            return await _database.Table<MasterCategory>()
+                .Where(c => c.Type == type)
+                .ToListAsync();
+        }
+
+        public async Task<int> InsertMasterCategoryAsync(MasterCategory category)
+        {
+            return await _database.InsertAsync(category);
+        }
+
+        public async Task<int> UpdateMasterCategoryAsync(MasterCategory category)
+        {
+            return await _database.UpdateAsync(category);
+        }
+
+        public async Task<int> DeleteMasterCategoryAsync(MasterCategory category)
+        {
+            return await _database.DeleteAsync(category);
+        }
+
+        // BudgetMasterCategory (Join table) CRUD
+        public async Task<List<BudgetMasterCategory>> GetCategoriesByBudgetIdNewAsync(string budgetId)
+        {
+            return await _database.Table<BudgetMasterCategory>()
+                .Where(bc => bc.BudgetId == budgetId)
+                .ToListAsync();
+        }
+
+        public async Task<List<BudgetMasterCategory>> GetBudgetsByMasterCategoryAsync(int masterCategoryId)
+        {
+            return await _database.Table<BudgetMasterCategory>()
+                .Where(bc => bc.MasterCategoryId == masterCategoryId)
+                .ToListAsync();
+        }
+
+        public async Task<BudgetMasterCategory> GetBudgetCategoryAssignmentAsync(string budgetId, int masterCategoryId)
+        {
+            return await _database.Table<BudgetMasterCategory>()
+                .FirstOrDefaultAsync(bc => bc.BudgetId == budgetId && bc.MasterCategoryId == masterCategoryId);
+        }
+
+        public async Task<int> InsertBudgetMasterCategoryAsync(BudgetMasterCategory assignment)
+        {
+            return await _database.InsertAsync(assignment);
+        }
+
+        public async Task<int> UpdateBudgetMasterCategoryAsync(BudgetMasterCategory assignment)
+        {
+            return await _database.UpdateAsync(assignment);
+        }
+
+        public async Task<int> DeleteBudgetMasterCategoryAsync(BudgetMasterCategory assignment)
+        {
+            return await _database.DeleteAsync(assignment);
+        }
+
+        public async Task<int> RemoveBudgetCategoryAssignmentAsync(string budgetId, int masterCategoryId)
+        {
+            var assignment = await GetBudgetCategoryAssignmentAsync(budgetId, masterCategoryId);
+            if (assignment != null)
+                return await _database.DeleteAsync(assignment);
+            return 0;
+        }
+
+        // PaymentAccount CRUD
+        public async Task<List<PaymentAccount>> GetAllPaymentAccountsAsync()
+        {
+            return await _database.Table<PaymentAccount>().ToListAsync();
+        }
+
+        public async Task<PaymentAccount> GetPaymentAccountByIdAsync(int id)
+        {
+            return await _database.Table<PaymentAccount>().FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<PaymentAccount> GetPaymentAccountByNameAsync(string name)
+        {
+            return await _database.Table<PaymentAccount>()
+                .FirstOrDefaultAsync(a => a.Name.ToUpper() == name.ToUpper());
+        }
+
+        public async Task<int> InsertPaymentAccountAsync(PaymentAccount account)
+        {
+            return await _database.InsertAsync(account);
+        }
+
+        public async Task<int> UpdatePaymentAccountAsync(PaymentAccount account)
+        {
+            return await _database.UpdateAsync(account);
+        }
+
+        public async Task<int> DeletePaymentAccountAsync(PaymentAccount account)
+        {
+            return await _database.DeleteAsync(account);
+        }
+
+        // SavingsPod CRUD
+        public async Task<List<SavingsPod>> GetAllSavingsPodsAsync()
+        {
+            return await _database.Table<SavingsPod>().ToListAsync();
+        }
+
+        public async Task<SavingsPod> GetSavingsPodByIdAsync(int id)
+        {
+            return await _database.Table<SavingsPod>().FirstOrDefaultAsync(sp => sp.Id == id);
+        }
+
+        public async Task<SavingsPod> GetSavingsPodByMasterCategoryIdAsync(int masterCategoryId)
+        {
+            return await _database.Table<SavingsPod>()
+                .FirstOrDefaultAsync(sp => sp.MasterCategoryId == masterCategoryId);
+        }
+
+        public async Task<int> InsertSavingsPodAsync(SavingsPod pod)
+        {
+            return await _database.InsertAsync(pod);
+        }
+
+        public async Task<int> UpdateSavingsPodAsync(SavingsPod pod)
+        {
+            return await _database.UpdateAsync(pod);
+        }
+
+        public async Task<int> DeleteSavingsPodAsync(SavingsPod pod)
+        {
+            return await _database.DeleteAsync(pod);
+        }
+
+        public async Task<List<Expense>> GetSavingsPodExpensesAsync(int savingsPodId)
+        {
+            return await _database.Table<Expense>()
+                .Where(e => e.SavingsPodId == savingsPodId)
+                .ToListAsync();
+        }
+
+        public async Task<decimal> GetSavingsPodBalanceAsync(int savingsPodId)
+        {
+            var expenses = await GetSavingsPodExpensesAsync(savingsPodId);
+            return expenses.Sum(e => e.Amount);
+        }
+
+        // Month-Budget Assignment
+        public async Task<int> AssignBudgetToMonthAsync(int monthId, string budgetId)
+        {
+            var month = await _database.Table<Month>().FirstOrDefaultAsync(m => m.Id == monthId);
+            if (month != null)
+            {
+                month.BudgetId = budgetId;
+                return await _database.UpdateAsync(month);
+            }
+            return 0;
+        }
+
+        public async Task<Budget> GetBudgetForMonthAsync(int monthId)
+        {
+            var month = await _database.Table<Month>().FirstOrDefaultAsync(m => m.Id == monthId);
+            if (month != null && !string.IsNullOrEmpty(month.BudgetId))
+            {
+                return await GetBudgetAsync(month.BudgetId);
+            }
+            return null;
+        }
+
+        // Recurring Expense Logic
+        public async Task<List<BudgetMasterCategory>> GetRecurringCategoriesForBudgetAsync(string budgetId)
+        {
+            return await _database.Table<BudgetMasterCategory>()
+                .Where(bc => bc.BudgetId == budgetId && bc.IsRecurring)
+                .ToListAsync();
+        }
+
+        public async Task<bool> ShouldCreateRecurringExpenseAsync(int masterCategoryId, int dayOfMonth, int currentDay)
+        {
+            var category = await GetMasterCategoryByIdAsync(masterCategoryId);
+            if (category == null) return false;
+
+            var assignments = await GetBudgetsByMasterCategoryAsync(masterCategoryId);
+            var recurringAssignment = assignments.FirstOrDefault(a => a.IsRecurring && a.DayOfMonth == dayOfMonth);
+            
+            return recurringAssignment != null && dayOfMonth == currentDay;
         }
     }
 }

@@ -35,25 +35,18 @@ namespace MoneyCenter.ViewModel
         }
         private async Task saveEntry() 
         {
-            //have the month be part of the input? yes
-            string month = DateTime.Now.Month.ToString();
-            //the object has a date but it will apply to whatever month the user is
-            //editing since they can have late or early entries in the month
-
-            // Add input validation here if needed
-
-
             Expense singleEntry = new Expense
             {
+                Id = Guid.NewGuid().ToString(),
                 Date = newEntryModel.Date,
                 Destination = newEntryModel.Store,
-                Category = newEntryModel.Category, //ensure the frontend category follows the db
+                MasterCategoryId = newEntryModel.MasterCategoryId,
                 Amount = newEntryModel.Amount,
-                PaymentMethod = newEntryModel.PaymentMethod,
-                Details = newEntryModel.Details
+                PaymentAccountId = newEntryModel.PaymentAccountId,
+                Details = newEntryModel.Details,
+                MonthId = newEntryModel.MonthId
             };
-                await model.AddExpense(month, singleEntry);
-
+            
         }
     }
 }

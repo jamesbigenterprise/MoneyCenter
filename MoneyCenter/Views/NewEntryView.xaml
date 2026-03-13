@@ -61,12 +61,6 @@ Margin="0,20,20,0"
                 </StackLayout>
 </Border>
 
-
-
-
-
-
-
                 <!--Money Amount-->
                 <Border Stroke="Black" 
                     StrokeThickness="5" 
@@ -81,7 +75,7 @@ Margin="0,20,20,0"
                        Text="{Binding NewEntryModel.Amount}"/>
                     </StackLayout>
                 </Border>
-                <!--Category-->
+                <!--Category ID-->
                 <Border Stroke="Black" 
     StrokeThickness="5" 
     Background="White" 
@@ -89,16 +83,16 @@ Margin="0,20,20,0"
                     <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
                         
                         <Entry x:Name="Category" 
-                       Placeholder="Category"
+                       Placeholder="Category ID"
                        VerticalOptions="CenterAndExpand"
      HorizontalOptions="FillAndExpand"
                        Keyboard="Numeric"
                                TextColor="Black"
-                       Text="{Binding NewEntryModel.Category}"/>
+                       Text="{Binding NewEntryModel.MasterCategoryId}"/>
                     </StackLayout>
                 </Border>
 
-                <!--Payment method-->
+                <!--Payment Account ID-->
                 <Border Stroke="Black" 
                 StrokeThickness="5" 
                 Background="White" 
@@ -106,26 +100,28 @@ Margin="0,20,20,0"
                     <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
                    
                     <Entry x:Name="PaymentMethod"
-                       Placeholder="Payment Method"
+                       Placeholder="Payment Account ID"
                        VerticalOptions="CenterAndExpand"
      HorizontalOptions="FillAndExpand"
+                       Keyboard="Numeric"
                            TextColor="Black"
-                       Text="{Binding NewEntryModel.PaymentMethod}"/>
+                       Text="{Binding NewEntryModel.PaymentAccountId}"/>
                 </StackLayout>
 </Border>
-                 <!--Apply to-->
+                 <!--Month ID-->
                 <Border Stroke="Black" 
     StrokeThickness="5" 
     Background="White" 
     Margin="0,0,0,10">
                     <StackLayout Orientation="Horizontal" >
 
-                    <Entry x:Name="ApplyTo"
-                       Placeholder="Month"
+                    <Entry x:Name="Month"
+                       Placeholder="Month ID"
                        VerticalOptions="CenterAndExpand"
      HorizontalOptions="FillAndExpand"
+                       Keyboard="Numeric"
                            TextColor="Black"
-                       Text="{Binding NewEntryModel.ApplyTo}"/>
+                       Text="{Binding NewEntryModel.MonthId}"/>
                 </StackLayout>
                     </Border>
 

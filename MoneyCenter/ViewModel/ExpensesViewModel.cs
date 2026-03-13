@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Maui.ApplicationModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MoneyCenter.Model;
 using MoneyCenter.Services;
@@ -18,16 +17,20 @@ public partial class ExpensesViewModel : ObservableObject
     {
         _model = model;
         _toastService = toastService;
-
-        // Initialize data
         LoadData();
     }
 
     [ObservableProperty]
-    private ObservableCollection<string> availableMonths = new();
+    private int selectedYearId;
 
     [ObservableProperty]
-    private string selectedMonth;
+    private int selectedMonthId;
+
+    [ObservableProperty]
+    private ObservableCollection<Year> years = new();
+
+    [ObservableProperty]
+    private ObservableCollection<Month> months = new();
 
     [ObservableProperty]
     private ObservableCollection<Budget> budgets = new();
@@ -36,15 +39,14 @@ public partial class ExpensesViewModel : ObservableObject
     private Budget selectedBudget;
 
     [ObservableProperty]
-    private ObservableCollection<string> categories = new();
+    private ObservableCollection<MasterCategory> masterCategories = new();
 
     [ObservableProperty]
-    private string selectedCategory;
+    private ObservableCollection<PaymentAccount> paymentAccounts = new();
 
     [ObservableProperty]
     private ObservableCollection<Expense> currentExpenses = new();
 
-    // New expense properties
     [ObservableProperty]
     private decimal newExpenseAmount;
 
@@ -57,7 +59,12 @@ public partial class ExpensesViewModel : ObservableObject
     [ObservableProperty]
     private string newExpenseDetails;
 
-    // Expense being edited
+    [ObservableProperty]
+    private int selectedCategoryId;
+
+    [ObservableProperty]
+    private int selectedPaymentAccountId;
+
     [ObservableProperty]
     private Expense editingExpense;
 
@@ -66,210 +73,163 @@ public partial class ExpensesViewModel : ObservableObject
 
     public async void LoadData()
     {
-        ///TODO
-
-        // Update available months
-       
-        // Set current month if not already set
-        
-
-        // Load budgets
-       
-
-        // Select the budget for this month
-       
-
-        // Load categories
-       
-        // Load current month's expenses
-        await LoadExpenses();
-    }
-
-    partial void OnSelectedMonthChanged(string value)
-    {
-        if (!string.IsNullOrEmpty(value))
+        try
         {
-            Task.Run(async () => await LoadExpensesAndUpdateBudget());
-        }
-    }
-
-    private async Task LoadExpensesAndUpdateBudget()
-    {
-        ///TODO
-        await LoadExpenses();
-
-        // Update selected budget
-       
-    }
-
-    partial void OnSelectedBudgetChanged(Budget value)
-    {
-        if (value != null && !string.IsNullOrEmpty(SelectedMonth))
-        {
-            _model.SetBudgetForMonth(value.Id, SelectedMonth);
-        }
-    }
-
-    private async Task LoadExpenses()
-    {
-        if (string.IsNullOrEmpty(SelectedMonth))
-            return;
-
-        var monthExpenses = await _model.GetExpensesByMonth(SelectedMonth);
-        var expenses = monthExpenses.Select(e => e.ToViewModel()).ToList();
-        
-        CurrentExpenses.Clear();
-        foreach (var expense in expenses.OrderByDescending(e => e.Date))
-        {
-            CurrentExpenses.Add(expense);
-        }
-    }
-
-    [RelayCommand]
-    private void PreviousMonth()
-    {
-        var index = AvailableMonths.IndexOf(SelectedMonth);
-        if (index < AvailableMonths.Count - 1)
-        {
-            SelectedMonth = AvailableMonths[index + 1];
-        }
-    }
-
-    [RelayCommand]
-    private void NextMonth()
-    {
-        var index = AvailableMonths.IndexOf(SelectedMonth);
-        if (index > 0)
-        {
-            SelectedMonth = AvailableMonths[index - 1];
-        }
-    }
-
-    [RelayCommand]
-    private async Task AddCategory()
-    {
-        string result = await App.Current.MainPage.DisplayPromptAsync("New Category", "Enter category name:", "Add", "Cancel");
-
-        if (!string.IsNullOrWhiteSpace(result))
-        {
-            // Add new category to master list
-            var newCategory = new BudgetCategory
+            var yearsList = await _model.GetYears();
+            Years.Clear();
+            foreach (var year in yearsList)
             {
-                Name = result,
-                Amount = 0,
-                Type = "expense",
-                IsRecurring = false
-            };
-            
-            await _model.AddCategoryAsync(newCategory.ToSchema());
-
-            // Reload categories
-            List<Schema.BudgetCategory> allCategories = await _model.GetAllCategories();
-            Categories.Clear();
-            foreach (var category in allCategories)
-            {
-                Categories.Add(category);
+                Years.Add(new Year { Id = year.Id, YearValue = year.YearValue });
             }
 
-            // Select the new category
-            SelectedCategory = result;
+            var budgetsList = await _model.GetBudgets();
+            Budgets.Clear();
+            foreach (var budget in budgetsList)
+            {
+                Budgets.Add(budget.ToViewModel());
+            }
+
+            var categoriesList = await _model.GetMasterCategories();
+            MasterCategories.Clear();
+            foreach (var category in categoriesList)
+            {
+                MasterCategories.Add(category.ToViewModel());
+            }
+
+            var accountsList = await _model.GetPaymentAccounts();
+            PaymentAccounts.Clear();
+            foreach (var account in accountsList)
+            {
+                PaymentAccounts.Add(account.ToViewModel());
+            }
+
+            // Set to current year and month
+            if (Years.Any())
+            {
+                SelectedYearId = Years.First().Id;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"LoadData error: {ex.Message}");
+        }
+    }
+
+    partial void OnSelectedYearIdChanged(int yearId)
+    {
+        if (yearId > 0)
+        {
+            LoadMonthsForYear();
+        }
+    }
+
+    private async void LoadMonthsForYear()
+    {
+        try
+        {
+            var monthsList = await _model.GetMonthsByYear(SelectedYearId);
+            Months.Clear();
+            foreach (var month in monthsList)
+            {
+                Months.Add(new Month { Id = month.Id, YearId = month.YearId, BudgetId = month.BudgetId, MonthNumber = month.MonthNumber, MonthName = month.MonthName });
+            }
+
+            if (Months.Any())
+            {
+                SelectedMonthId = Months.First(m => m.MonthNumber == DateTime.Now.Month)?.Id ?? Months.First().Id;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"LoadMonthsForYear error: {ex.Message}");
+        }
+    }
+
+    partial void OnSelectedMonthIdChanged(int monthId)
+    {
+        if (monthId > 0)
+        {
+            Task.Run(async () => await LoadExpensesForMonth());
+        }
+    }
+
+    private async Task LoadExpensesForMonth()
+    {
+        try
+        {
+            // Load expenses for the selected month
+            var expenses = await _model.GetExpensesByMonthId(SelectedMonthId);
+            CurrentExpenses.Clear();
+            foreach (var expense in expenses.OrderByDescending(e => e.Date))
+            {
+                CurrentExpenses.Add(expense.ToViewModel());
+            }
+
+            // Load the budget assigned to this month
+            var budget = await _model.GetBudgetForMonth(SelectedMonthId);
+            if (budget != null)
+            {
+                SelectedBudget = budget.ToViewModel();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"LoadExpensesForMonth error: {ex.Message}");
         }
     }
 
     [RelayCommand]
     private async Task AddExpense()
     {
-        if (NewExpenseAmount <= 0)
+        if (SelectedMonthId <= 0 || SelectedCategoryId <= 0 || SelectedPaymentAccountId <= 0)
         {
-            _toastService.Show("Amount must be greater than zero");
+            await App.Current.MainPage.DisplayAlert("Validation", "Please select month, category, and payment account", "OK");
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(SelectedCategory))
-        {
-            _toastService.Show("Please select a category");
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(NewExpenseDestination))
-        {
-            _toastService.Show("Please enter a destination");
-            return;
-        }
-
-        var expense = new Expense
+        var expense = new Schema.Expense
         {
             Id = Guid.NewGuid().ToString(),
+            MonthId = SelectedMonthId,
             Amount = NewExpenseAmount,
             Date = NewExpenseDate,
-            Category = SelectedCategory,
+            MasterCategoryId = SelectedCategoryId,
             Destination = NewExpenseDestination,
-            Details = NewExpenseDetails
+            Details = NewExpenseDetails,
+            PaymentAccountId = SelectedPaymentAccountId
         };
 
-        if (IsEditing && EditingExpense != null)
+        try
         {
-            // Update existing expense
-            expense.Id = EditingExpense.Id;
-            await _model.UpdateExpense(SelectedMonth, expense.ToSchema());
-            _toastService.Show("Expense updated");
+            await _model.AddExpense(SelectedMonthId, expense);
+            await LoadExpensesForMonth();
+
+            // Clear form
+            NewExpenseAmount = 0;
+            NewExpenseDestination = string.Empty;
+            NewExpenseDetails = string.Empty;
+            NewExpenseDate = DateTime.Today;
+
+            System.Diagnostics.Debug.WriteLine("Expense added successfully");
         }
-        else
+        catch (Exception ex)
         {
-            // Add new expense
-            await _model.AddExpense(SelectedMonth, expense.ToSchema());
-            _toastService.Show("Expense added");
+            System.Diagnostics.Debug.WriteLine($"AddExpense error: {ex.Message}");
         }
-
-        // Reset form
-        ResetForm();
-
-        // Reload expenses
-        await LoadExpenses();
     }
 
     [RelayCommand]
-    private void EditExpense(Expense expense)
+    private async Task DeleteExpense(string expenseId)
     {
-        if (expense == null)
-            return;
-
-        EditingExpense = expense;
-        IsEditing = true;
-
-        // Populate form with expense data
-        NewExpenseAmount = expense.Amount;
-        NewExpenseDate = expense.Date;
-        SelectedCategory = expense.Category;
-        NewExpenseDestination = expense.Destination;
-        NewExpenseDetails = expense.Details;
-    }
-
-    [RelayCommand]
-    private async Task DeleteExpense(Expense expense)
-    {
-        if (expense == null)
-            return;
-
-        bool confirm = await App.Current.MainPage.DisplayAlert("Confirm",
-            "Are you sure you want to delete this expense?", "Yes", "No");
-
-        if (confirm)
+        try
         {
-            await _model.DeleteExpense(SelectedMonth, expense.Id);
-            _toastService.Show("Expense deleted");
-            await LoadExpenses();
+            await _model.DeleteExpense(SelectedMonthId, expenseId);
+            await LoadExpensesForMonth();
+            System.Diagnostics.Debug.WriteLine("Expense deleted");
         }
-    }
-
-    private void ResetForm()
-    {
-        NewExpenseAmount = 0;
-        NewExpenseDate = DateTime.Today;
-        SelectedCategory = null;
-        NewExpenseDestination = string.Empty;
-        NewExpenseDetails = string.Empty;
-        EditingExpense = null;
-        IsEditing = false;
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"DeleteExpense error: {ex.Message}");
+        }
     }
 }

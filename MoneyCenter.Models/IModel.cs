@@ -11,40 +11,56 @@ namespace MoneyCenter.Model
     {
         Task InitializeDatabase();
 
-        Task<Dictionary<string, Expense>> GetAllData();
+        // Year operations
+        Task<List<Year>> GetYears();
+        Task AddYear(int yearValue);
 
+        // Month operations
+        Task<List<Month>> GetMonthsByYear(int yearId);
+        Task<int> AssignBudgetToMonth(int monthId, string budgetId);
+        Task<Budget> GetBudgetForMonth(int monthId);
+
+        // Budget operations
         Task<List<Budget>> GetBudgets();
 
-        Task<List<BudgetCategory>> GetAllCategories();
+        // MasterCategory operations (centralized categories)
+        Task<List<MasterCategory>> GetMasterCategories();
+        Task<MasterCategory> GetMasterCategoryById(int categoryId);
+        Task<List<MasterCategory>> GetMasterCategoriesByType(string type);
+        Task AddMasterCategory(MasterCategory category);
+        Task UpdateMasterCategory(MasterCategory category);
+        Task DeleteMasterCategory(int categoryId);
 
-        Task<List<BudgetCategory>> GetMasterCategories();
-        
-        Task<List<BudgetCategory>> GetCategoriesByBudgetId(string budgetId);
-        
-        Task<List<Expense>> GetExpensesByMonth(string month);
-        
-        Task<List<Expense>> GetAllExpenses();
+        // Budget-Category assignments
+        Task<List<BudgetMasterCategory>> GetCategoriesByBudgetId(string budgetId);
+        Task AssignCategoryToBudget(string budgetId, int masterCategoryId, decimal amount, bool isRecurring, int? dayOfMonth);
+        Task RemoveCategoryFromBudget(string budgetId, int masterCategoryId);
+        Task UpdateBudgetCategoryAssignment(string budgetId, int masterCategoryId, decimal amount, bool isRecurring, int? dayOfMonth);
 
-        Task AddCategoryAsync(BudgetCategory category);
+        // PaymentAccount operations
+        Task<List<PaymentAccount>> GetPaymentAccounts();
+        Task AddPaymentAccount(PaymentAccount account);
+        Task UpdatePaymentAccount(PaymentAccount account);
+        Task DeletePaymentAccount(int accountId);
 
-        Task AddExpense(string month, Expense expense);
+        // SavingsPod operations
+        Task<List<SavingsPod>> GetAllSavingsPods();
+        Task<SavingsPod> GetSavingsPodByMasterCategoryId(int masterCategoryId);
+        Task CreateSavingsPod(int masterCategoryId);
+        Task<decimal> GetSavingsPodBalance(int savingsPodId);
+        Task TransferExpenseToSavingsPod(string expenseId, int savingsPodId);
 
-        Task UpdateExpense(string month, Expense expense);
-
-        Task DeleteExpense(string month, string expenseId);
-
-        Task SetBudgetForMonth(string budgetId, string month);
-
-        Task SetIncomeForMonth(decimal income, string month);
-
-        Task<bool> AddNewMonth();
-
-        Task SeedInitialData();
-
-        // New for hierarchy
-        Task<List<Year>> GetYears();
-        Task<List<Month>> GetMonthsByYear(int yearId);
+        // Expense operations
         Task<List<Expense>> GetExpensesByMonthId(int monthId);
-        Task AddYear(int yearValue);
+        Task AddExpense(int monthId, Expense expense);
+        Task UpdateExpense(int monthId, Expense expense);
+        Task DeleteExpense(int monthId, string expenseId);
+        Task<Expense> GetExpense(string expenseId);
+
+        // Recurring expense logic
+        Task ProcessRecurringExpenses(int monthId);
+
+        // Initialization/Seeding
+        Task SeedInitialData();
     }
 }

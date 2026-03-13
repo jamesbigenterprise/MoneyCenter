@@ -8,6 +8,7 @@ namespace MoneyCenter.ViewModel.Objects
 {
     public class BudgetCategory
     {
+        public int Id { get; set; } // MasterCategoryId
         public string Name { get; set; } = string.Empty;
         public decimal Amount { get; set; }
         public string Type { get; set; } = "expense"; // will be its own type
