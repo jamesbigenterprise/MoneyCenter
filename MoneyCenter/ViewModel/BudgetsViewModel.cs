@@ -24,16 +24,50 @@ namespace MoneyCenter.ViewModel
         [ObservableProperty]
         private ObservableCollection<Budget> budgets = new();
 
+        [ObservableProperty]
+        private ObservableCollection<BudgetMasterCategory> categoryAssignments = new();
+
         private async void LoadBudgets()
         {
-            var schemaBudgets = await _model.GetBudgets();
-            var allCategories = await _model.GetMasterCategories();
-            
-            var viewModelBudgets = schemaBudgets
-                .Select(b => b.ToViewModel(allCategories))
-                .ToList();
-            
-            Budgets = new ObservableCollection<Budget>(viewModelBudgets);
+            try
+            {
+                var schemaBudgets = await _model.GetBudgets();
+                
+                var viewModelBudgets = schemaBudgets.Select(b => new Budget
+                {
+                    Id = b.Id,
+                    Name = b.Name,
+                    Description = b.Description,
+                    IsDefault = b.IsDefault
+                }).ToList();
+                
+                Budgets = new ObservableCollection<Budget>(viewModelBudgets);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"LoadBudgets error: {ex.Message}");
+            }
+        }
+
+        public async Task LoadCategoriesForBudget(string budgetId)
+        {
+            try
+            {
+                var assignments = await _model.GetCategoriesByBudgetId(budgetId);
+                CategoryAssignments = new ObservableCollection<BudgetMasterCategory>(assignments.Select(a => new BudgetMasterCategory
+                {
+                    Id = a.Id,
+                    BudgetId = a.BudgetId,
+                    MasterCategoryId = a.MasterCategoryId,
+                    Amount = a.Amount,
+                    IsRecurring = a.IsRecurring,
+                    DayOfMonth = a.DayOfMonth
+                }).ToList());
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"LoadCategoriesForBudget error: {ex.Message}");
+            }
         }
     }
 }

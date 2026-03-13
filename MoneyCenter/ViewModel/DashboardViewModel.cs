@@ -30,63 +30,60 @@ public partial class DashboardViewModel : ObservableObject
     private decimal totalBalance;
 
     [ObservableProperty]
+    private int selectedMonthId;
+
+    [ObservableProperty]
     private ObservableCollection<Expense> recentExpenses = new();
 
     public DashboardViewModel(IModel model)
     {
         _model = model;
-
-        // Initialize the view with data
         LoadDashboardData();
     }
 
     public async void LoadDashboardData()
     {
-        var currentMonthKey = DateTime.Now.ToString("yyyy-MM");
-        var schemaAllData = await _model.GetAllData();
-        var allExpenses = await _model.GetAllExpenses();
-        
-        var allData = schemaAllData.ToDictionary(
-            kvp => kvp.Key, 
-            kvp => kvp.Value.ToViewModel(allExpenses));
-        
-        var currentData = allData.ContainsKey(currentMonthKey) ?
-            allData[currentMonthKey] :
-            new MonthlyData { Income = 0, Expenses = new List<Expense>() };
-
-        CurrentMonthDisplay = DateTime.Parse($"{currentMonthKey}-01").ToString("MMMM yyyy");
-        CurrentIncome = currentData.Income;
-        CurrentExpenses = currentData.Expenses.Sum(e => e.Amount);
-
-        // Calculate totals across all data
-        TotalIncome = allData.Sum(d => d.Value.Income);
-        TotalExpenses = allData.Sum(d => d.Value.Expenses.Sum(e => e.Amount));
-        TotalBalance = TotalIncome - TotalExpenses;
-
-        // Get recent expenses
-        var recentExpenses = allData
-            .SelectMany(d => d.Value.Expenses)
-            .OrderByDescending(e => e.Date)
-            .Take(5)
-            .ToList();
-
-        RecentExpenses.Clear();
-        foreach (var expense in recentExpenses)
+        try
         {
-            RecentExpenses.Add(expense);
+            CurrentMonthDisplay = DateTime.Now.ToString("MMMM yyyy");
+
+            // Get current month data
+            var years = await _model.GetYears();
+            var currentYear = years.FirstOrDefault(y => y.YearValue == DateTime.Now.Year);
+            
+            if (currentYear != null)
+            {
+                var months = await _model.GetMonthsByYear(currentYear.Id);
+                var currentMonth = months.FirstOrDefault(m => m.MonthNumber == DateTime.Now.Month);
+                
+                if (currentMonth != null)
+                {
+                    SelectedMonthId = currentMonth.Id;
+                    var expenses = await _model.GetExpensesByMonthId(currentMonth.Id);
+                    
+                    CurrentExpenses = expenses.Sum(e => e.Amount);
+                    TotalExpenses = expenses.Sum(e => e.Amount);
+                    
+                    RecentExpenses.Clear();
+                    foreach (var expense in expenses.OrderByDescending(e => e.Date).Take(5))
+                    {
+                        RecentExpenses.Add(expense.ToViewModel());
+                    }
+                    
+                    // Calculate balance
+                    TotalBalance = CurrentIncome - TotalExpenses;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"LoadDashboardData error: {ex.Message}");
         }
     }
 
-    partial void OnCurrentIncomeChanged(decimal value)
-    {
-        // Update the income for the current month
-        _model.SetIncomeForMonth(value, DateTime.Now.ToString("yyyy-MM"));
-    }
-
     [RelayCommand]
-    public async Task AddNewMonth()
+    public async Task RefreshData()
     {
-        await _model.AddNewMonth();
         LoadDashboardData();
     }
 }

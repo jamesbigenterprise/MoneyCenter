@@ -5,8 +5,8 @@ namespace MoneyCenter.ViewModel.Extensions
 {
     public static class ViewModelExtensions
     {
-        // To ViewModel
-        public static ViewModel.Objects.Budget ToViewModel(this Schema.Budget budget, List<Schema.BudgetCategory> categories = null)
+        // To ViewModel - Budget
+        public static ViewModel.Objects.Budget ToViewModel(this Schema.Budget budget, List<Schema.BudgetMasterCategory> categories = null)
         {
             if (budget == null) return null;
             return new ViewModel.Objects.Budget
@@ -21,16 +21,42 @@ namespace MoneyCenter.ViewModel.Extensions
             };
         }
 
-        public static ViewModel.Objects.BudgetCategory ToViewModel(this Schema.BudgetCategory category)
+        public static ViewModel.Objects.BudgetCategory ToViewModel(this Schema.BudgetMasterCategory assignment)
         {
-            if (category == null) return null;
+            if (assignment == null) return null;
             return new ViewModel.Objects.BudgetCategory
             {
+                Id = assignment.MasterCategoryId,
+                Name = assignment.Id.ToString(), // Will need to be replaced with actual category name
+                Amount = assignment.Amount,
+                Type = string.Empty,
+                IsRecurring = assignment.IsRecurring,
+                DayOfMonth = assignment.DayOfMonth
+            };
+        }
+
+        public static ViewModel.Objects.MasterCategory ToViewModel(this Schema.MasterCategory category)
+        {
+            if (category == null) return null;
+            return new ViewModel.Objects.MasterCategory
+            {
+                Id = category.Id,
                 Name = category.Name,
-                Amount = category.Amount,
                 Type = category.Type,
-                IsRecurring = category.IsRecurring,
-                DayOfMonth = category.DayOfMonth
+                Description = category.Description
+            };
+        }
+
+        public static ViewModel.Objects.Budget ToViewModel(this Schema.Budget budget)
+        {
+            if (budget == null) return null;
+            return new ViewModel.Objects.Budget
+            {
+                Id = budget.Id,
+                Name = budget.Name,
+                Description = budget.Description,
+                IsDefault = budget.IsDefault,
+                Categories = new List<ViewModel.Objects.BudgetCategory>()
             };
         }
 
@@ -40,78 +66,59 @@ namespace MoneyCenter.ViewModel.Extensions
             return new ViewModel.Objects.Expense
             {
                 Id = expense.Id,
+                MonthId = expense.MonthId,
                 Amount = expense.Amount,
                 Date = expense.Date,
-                Category = expense.Category,
+                MasterCategoryId = expense.MasterCategoryId,
                 Destination = expense.Destination,
-                Details = expense.Details
+                Details = expense.Details,
+                PaymentAccountId = expense.PaymentAccountId,
+                BudgetId = expense.BudgetId,
+                SavingsPodId = expense.SavingsPodId
             };
         }
 
-        public static ViewModel.Objects.MonthlyData ToViewModel(this Schema.MonthlyData monthlyData, List<Schema.Expense> expenses = null)
+        public static ViewModel.Objects.PaymentAccount ToViewModel(this Schema.PaymentAccount account)
         {
-            if (monthlyData == null) return null;
-            return new ViewModel.Objects.MonthlyData
+            if (account == null) return null;
+            return new ViewModel.Objects.PaymentAccount
             {
-                Month = monthlyData.Month,
-                Income = monthlyData.Income,
-                BudgetId = monthlyData.BudgetId,
-                Expenses = expenses?.Where(e => e.MonthId == monthlyData.Month)
-                    .Select(e => e.ToViewModel())
-                    .ToList() ?? new List<ViewModel.Objects.Expense>()
+                Id = account.Id,
+                Name = account.Name,
+                Type = account.Type,
+                Description = account.Description
             };
         }
 
         // To Schema
-        public static Schema.Budget ToSchema(this ViewModel.Objects.Budget budget)
-        {
-            if (budget == null) return null;
-            return new Schema.Budget
-            {
-                Id = budget.Id,
-                Name = budget.Name,
-                Description = budget.Description,
-                IsDefault = budget.IsDefault
-            };
-        }
-
-        public static Schema.BudgetCategory ToSchema(this ViewModel.Objects.BudgetCategory category, string budgetId = null)
+        public static Schema.BudgetMasterCategory ToSchema(this ViewModel.Objects.BudgetCategory category, string budgetId = null)
         {
             if (category == null) return null;
-            return new Schema.BudgetCategory
+            return new Schema.BudgetMasterCategory
             {
                 BudgetId = budgetId ?? string.Empty,
-                Name = category.Name,
+                MasterCategoryId = category.Id,
                 Amount = category.Amount,
-                Type = category.Type,
                 IsRecurring = category.IsRecurring,
                 DayOfMonth = category.DayOfMonth
             };
         }
 
-        public static Schema.Expense ToSchema(this ViewModel.Objects.Expense expense, string monthId = null)
+        public static Schema.Expense ToSchema(this ViewModel.Objects.Expense expense)
         {
             if (expense == null) return null;
             return new Schema.Expense
             {
                 Id = expense.Id,
-                MonthId = monthId ?? string.Empty,
+                MonthId = expense.MonthId,
                 Amount = expense.Amount,
                 Date = expense.Date,
-                Category = expense.Category,
+                MasterCategoryId = expense.MasterCategoryId,
                 Destination = expense.Destination,
-                Details = expense.Details
-            };
-        }
-
-        public static Schema.MonthlyData ToSchema(this ViewModel.Objects.MonthlyData monthlyData)
-        {
-            if (monthlyData == null) return null;
-            return new Schema.MonthlyData
-            {
-                Month = monthlyData.Month,
-                Income = monthlyData.Income,
-                BudgetId = monthlyData.BudgetId
+                Details = expense.Details,
+                PaymentAccountId = expense.PaymentAccountId,
+                BudgetId = expense.BudgetId,
+                SavingsPodId = expense.SavingsPodId
             };
         }
     }

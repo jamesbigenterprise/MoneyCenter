@@ -9,10 +9,14 @@ namespace MoneyCenter.ViewModel.Objects
     public class Expense
     {
         public string Id { get; set; } = string.Empty;
+        public int MonthId { get; set; }
         public decimal Amount { get; set; }
         public DateTime Date { get; set; }
-        public string Category { get; set; } = string.Empty;
+        public int MasterCategoryId { get; set; }
         public string Destination { get; set; } = string.Empty;
         public string Details { get; set; } = string.Empty;
+        public int PaymentAccountId { get; set; }
+        public string BudgetId { get; set; } = string.Empty;
+        public int? SavingsPodId { get; set; }
     }
 }

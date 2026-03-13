@@ -35,19 +35,18 @@ namespace MoneyCenter.ViewModel
         }
         private async Task saveEntry() 
         {
-            // Add input validation here if needed
-                SingleEntryDataModel singleEntry = new SingleEntryDataModel
-                {
-                    Date = newEntryModel.Date,
-                    Store = newEntryModel.Store,
-                    Details = newEntryModel.Details,
-                    Amount = newEntryModel.Amount.ToString(),
-                    Category = newEntryModel.Category,
-                    PmtMethod = newEntryModel.PaymentMethod,
-                    ApplyTo = newEntryModel.ApplyTo.ToString()
-                };
-                await model.AddEntry(singleEntry);
-
+            Expense singleEntry = new Expense
+            {
+                Id = Guid.NewGuid().ToString(),
+                Date = newEntryModel.Date,
+                Destination = newEntryModel.Store,
+                MasterCategoryId = newEntryModel.MasterCategoryId,
+                Amount = newEntryModel.Amount,
+                PaymentAccountId = newEntryModel.PaymentAccountId,
+                Details = newEntryModel.Details,
+                MonthId = newEntryModel.MonthId
+            };
+            
         }
     }
 }
