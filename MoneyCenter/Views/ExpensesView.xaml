@@ -4,72 +4,81 @@
              xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
              xmlns:objects="clr-namespace:MoneyCenter.ViewModel.Objects"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="MoneyCenter.Views.ExpensesView">
+             x:Class="MoneyCenter.Views.ExpensesView"
+             x:DataType="viewmodel:ExpensesViewModel"
+             x:Name="RootView">
 
-    <VerticalStackLayout Padding="10" Spacing="10">
-        <Label Text="Expense Tracker" FontSize="24" FontAttributes="Bold" />
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="10" RowSpacing="10">
 
-        <!-- Add Previous Year Button -->
-        <Button Text="Add Previous Year" Command="{Binding AddPreviousYearCommand}" />
+        <Label Grid.Row="0" Text="Expense Tracker" FontSize="24" FontAttributes="Bold" />
 
-        <!-- Year Hierarchy -->
-        <CollectionView ItemsSource="{Binding Years}" SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <toolkit:Expander IsExpanded="{Binding IsExpanded}">
-                        <toolkit:Expander.Header>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <Label Text="{Binding YearValue}" FontAttributes="Bold" />
-                                <Button Text="Add Month" Command="{Binding AddMonthCommand}" />
-                            </Grid>
-                        </toolkit:Expander.Header>
-                        <VerticalStackLayout>
-                            <!-- Months for this year -->
-                            <CollectionView ItemsSource="{Binding Months}" SelectionMode="None">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <toolkit:Expander IsExpanded="{Binding IsExpanded}">
+        <Button Grid.Row="1" Text="Add Previous Year" Command="{Binding AddPreviousYearCommand}" />
+
+        <!-- Year Hierarchy — ScrollView + BindableLayout avoids CollectionView unbounded-height issue -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Spacing="5" BindableLayout.ItemsSource="{Binding Years}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodel:YearViewModel">
+                        <toolkit:Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
+                            <toolkit:Expander.Header>
+                                <Label Text="{Binding YearValue}" FontAttributes="Bold" Padding="5" />
+                            </toolkit:Expander.Header>
+
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Months}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodel:MonthViewModel">
+                                        <toolkit:Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
                                             <toolkit:Expander.Header>
-                                                <Grid ColumnDefinitions="2*,*,Auto,Auto,Auto">
+                                                <Grid ColumnDefinitions="2*,*,Auto,Auto" Padding="5">
                                                     <VerticalStackLayout Grid.Column="0">
                                                         <Label Text="{Binding MonthName}" FontAttributes="Bold" />
                                                         <Label Text="{Binding TransactionCount, StringFormat='Transactions: {0}'}" FontSize="12" />
                                                     </VerticalStackLayout>
-                                                    <Picker Grid.Column="1" ItemsSource="{Binding Source={x:Reference RootView}, Path=BindingContext.Budgets}" SelectedItem="{Binding SelectedBudget}" ItemDisplayBinding="{Binding Name}" />
-                                                    <Button Grid.Column="2" Text="+" Command="{Binding AddExpenseCommand}" />
-                                                    <Button Grid.Column="3" Text="˅" Command="{Binding ToggleExpandCommand}" />
+                                                    <Picker Grid.Column="1"
+                                                            ItemsSource="{Binding AllBudgets}"
+                                                            SelectedItem="{Binding SelectedBudget, Mode=TwoWay}"
+                                                            ItemDisplayBinding="{Binding Name}" />
+                                                    <Button Grid.Column="2" Text="+" Command="{Binding AddExpenseCommand}" WidthRequest="40" />
+                                                    <Button Grid.Column="3" Text="˅" Command="{Binding ToggleExpandCommand}" WidthRequest="40" />
                                                 </Grid>
                                             </toolkit:Expander.Header>
-                                            <VerticalStackLayout>
-                                                <!-- Expenses for this month -->
-                                                <CollectionView ItemsSource="{Binding Expenses}" SelectionMode="None">
-                                                    <CollectionView.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Grid Padding="10" ColumnDefinitions="*,Auto">
-                                                                <VerticalStackLayout Grid.Column="0">
-                                                                    <Label Text="{Binding Destination}" FontAttributes="Bold" />
-                                                                    <Label Text="{Binding Category}" />
-                                                                    <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" FontSize="12" TextColor="Gray" />
-                                                                    <Label Text="{Binding Details}" FontSize="12" />
-                                                                </VerticalStackLayout>
-                                                                <Label Grid.Column="1" Text="{Binding Amount, StringFormat='${0}'}" FontAttributes="Bold" VerticalOptions="Center" />
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </CollectionView.ItemTemplate>
-                                                </CollectionView>
-                                                <Button Text="Add Expense" Command="{Binding AddExpenseCommand}" />
+
+                                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Expenses}">
+                                                <BindableLayout.ItemTemplate>
+                                                    <DataTemplate x:DataType="objects:Expense">
+                                                        <Grid Padding="10,5" ColumnDefinitions="*,Auto,Auto">
+                                                            <VerticalStackLayout Grid.Column="0">
+                                                                <Label Text="{Binding Destination}" FontAttributes="Bold" />
+                                                                <Label Text="{Binding CategoryName}" FontSize="12" TextColor="Gray" />
+                                                                <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" FontSize="12" TextColor="Gray" />
+                                                                <Label Text="{Binding Details}" FontSize="12" />
+                                                            </VerticalStackLayout>
+                                                            <Label Grid.Column="1"
+                                                                   Text="{Binding Amount, StringFormat='${0:F2}'}"
+                                                                   FontAttributes="Bold"
+                                                                   VerticalOptions="Center"
+                                                                   Margin="5,0" />
+                                                            <Button Grid.Column="2"
+                                                                    Text="🗑"
+                                                                    Command="{Binding DeleteCommand}"
+                                                                    BackgroundColor="Transparent"
+                                                                    TextColor="Red"
+                                                                    WidthRequest="40" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </BindableLayout.ItemTemplate>
                                             </VerticalStackLayout>
                                         </toolkit:Expander>
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                        </VerticalStackLayout>
-                    </toolkit:Expander>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </toolkit:Expander>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </ScrollView>
 
-        <!-- Add Next Year Button -->
-        <Button Text="Add Next Year" Command="{Binding AddNextYearCommand}" />
-    </VerticalStackLayout>
+        <Button Grid.Row="3" Text="Add Next Year" Command="{Binding AddNextYearCommand}" />
+
+    </Grid>
 </ContentView>

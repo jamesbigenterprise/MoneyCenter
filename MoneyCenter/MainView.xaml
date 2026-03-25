@@ -25,11 +25,8 @@
 
         <!-- Main Content -->
         <Border Grid.Row="1" Margin="10" StrokeThickness="1" Padding="15">
-            <ContentView x:Name="MainContent">
-                <ContentView.Content>
-                    <!-- This will be populated by the current view -->
-                </ContentView.Content>
-            </ContentView>
+            <Grid x:Name="MainContent">
+            </Grid>
         </Border>
 
         <!-- Bottom Navigation for Mobile -->

@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using MoneyCenter.Messages;
 using MoneyCenter.Model;
-using System.Threading.Tasks;
+
 
 namespace MoneyCenter.ViewModel
 {
@@ -19,7 +21,7 @@ namespace MoneyCenter.ViewModel
         {
             await _model.InitializeDatabase();
             await _model.SeedInitialData();
-            await Shell.Current.GoToAsync(nameof(MainView));
+            WeakReferenceMessenger.Default.Send(new NavigateToMainMessage());
         }
     }
 }

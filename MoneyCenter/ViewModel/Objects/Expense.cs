@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.Input;
+using System;
+using System.Windows.Input;
 
 namespace MoneyCenter.ViewModel.Objects
 {
@@ -13,10 +11,12 @@ namespace MoneyCenter.ViewModel.Objects
         public decimal Amount { get; set; }
         public DateTime Date { get; set; }
         public int MasterCategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
         public string Details { get; set; } = string.Empty;
         public int PaymentAccountId { get; set; }
         public string BudgetId { get; set; } = string.Empty;
         public int? SavingsPodId { get; set; }
+        public ICommand DeleteCommand { get; set; }
     }
 }

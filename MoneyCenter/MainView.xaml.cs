@@ -28,10 +28,19 @@ public partial class MainView : ContentPage
         _budgetsView = budgetsView;
         _settingsView = settingsView;
 
-        // Subscribe to view changes
-        _viewModel.PropertyChanged += ViewModelPropertyChanged;
+        MainContent.Children.Add(_dashboardView);
+        MainContent.Children.Add(_expensesView);
+        MainContent.Children.Add(_savingsView);
+        MainContent.Children.Add(_budgetsView);
+        MainContent.Children.Add(_settingsView);
 
-        // Set initial view
+        UpdateActiveView(_viewModel.ActiveView);
+
+        _viewModel.PropertyChanged += ViewModelPropertyChanged;
+    }
+
+    private void OnPageLoaded(object sender, EventArgs e)
+    {
         UpdateActiveView(_viewModel.ActiveView);
     }
 
@@ -45,21 +54,16 @@ public partial class MainView : ContentPage
 
     private void UpdateActiveView(string activeView)
     {
-        MainContent.Content = activeView switch
-        {
-            "dashboard" => _dashboardView.Content,
-            "expenses" => _expensesView.Content,
-            "savings" => _savingsView.Content,
-            "budgets" => _budgetsView.Content,
-            "settings" => _settingsView.Content,
-            _ => _dashboardView.Content
-        };
+        _dashboardView.IsVisible = activeView == "dashboard";
+        _expensesView.IsVisible = activeView == "expenses";
+        _savingsView.IsVisible = activeView == "savings";
+        _budgetsView.IsVisible = activeView == "budgets";
+        _settingsView.IsVisible = activeView == "settings";
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // Check device screen size and update IsDesktop/IsMobile
         _viewModel.CheckDeviceSize();
     }
 

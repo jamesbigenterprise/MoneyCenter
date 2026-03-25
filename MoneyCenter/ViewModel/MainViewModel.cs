@@ -18,33 +18,38 @@ public partial class MainViewModel : ObservableObject
         _model = model;
         _deviceDisplay = deviceDisplay;
 
+        Budgets = new();
+        Years = new();
+        MasterCategories = new();
+        PaymentAccounts = new();
+
         ActiveView = "dashboard";
         InitializeData();
     }
 
     [ObservableProperty]
-    private string activeView;
+    public partial string ActiveView { get; set; }
 
     [ObservableProperty]
-    private bool isDesktop;
+    public partial bool IsDesktop { get; set; }
 
     [ObservableProperty]
-    private bool isMobile;
+    public partial bool IsMobile { get; set; }
 
     [ObservableProperty]
-    private string currentMonth;
+    public partial string CurrentMonth { get; set; }
 
     [ObservableProperty]
-    private List<Budget> budgets = new();
+    public partial List<Budget> Budgets { get; set; }
 
     [ObservableProperty]
-    private List<Year> years = new();
+    public partial List<Year> Years { get; set; }
 
     [ObservableProperty]
-    private List<MasterCategory> masterCategories = new();
+    public partial List<MasterCategory> MasterCategories { get; set; }
 
     [ObservableProperty]
-    private List<PaymentAccount> paymentAccounts = new();
+    public partial List<PaymentAccount> PaymentAccounts { get; set; }
 
     public void CheckDeviceSize()
     {

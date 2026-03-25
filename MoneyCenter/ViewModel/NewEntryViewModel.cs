@@ -31,10 +31,11 @@ namespace MoneyCenter.ViewModel
         [RelayCommand]
         async Task Close()
         {
-            await Shell.Current.GoToAsync("..");
+            await Application.Current!.MainPage!.Navigation.PopModalAsync();
         }
         private async Task saveEntry() 
         {
+            if (newEntryModel.MonthId <= 0) return;
             Expense singleEntry = new Expense
             {
                 Id = Guid.NewGuid().ToString(),
@@ -46,7 +47,7 @@ namespace MoneyCenter.ViewModel
                 Details = newEntryModel.Details,
                 MonthId = newEntryModel.MonthId
             };
-            
+            await model.AddExpense(newEntryModel.MonthId, singleEntry);
         }
     }
 }

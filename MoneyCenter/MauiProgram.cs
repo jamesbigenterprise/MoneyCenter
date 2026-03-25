@@ -38,8 +38,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<IModel, MoneyCenterModel>();
         builder.Services.AddSingleton<MoneyCenterDatabase>();
 
+        builder.Services.AddSingleton<AppShell>();
+
         // MainView and MainViewModel
-        builder.Services.AddSingleton<MainView>();
+        builder.Services.AddTransient<MainView>();
         builder.Services.AddSingleton<MainViewModel>();
         builder.Services.AddSingleton<WelcomePage>();
 
