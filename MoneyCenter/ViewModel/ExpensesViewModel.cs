@@ -1,10 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MoneyCenter.Model;
 using MoneyCenter.Services;
 using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Maui.Alerts;
 
 namespace MoneyCenter.ViewModel;
 
@@ -90,6 +91,7 @@ public partial class ExpensesViewModel : ObservableObject
             : DateTime.Now.Year - 1;
         await _model.AddYear(prevYear);
         await LoadYearsAsync();
+        await Toast.Make($"Added year {prevYear} to ledger.", CommunityToolkit.Maui.Core.ToastDuration.Short).Show();
     }
 
     [RelayCommand]
@@ -100,5 +102,6 @@ public partial class ExpensesViewModel : ObservableObject
             : DateTime.Now.Year + 1;
         await _model.AddYear(nextYear);
         await LoadYearsAsync();
+        await Toast.Make($"Added year {nextYear} to ledger.", CommunityToolkit.Maui.Core.ToastDuration.Short).Show();
     }
 }

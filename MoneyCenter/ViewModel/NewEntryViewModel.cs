@@ -1,7 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MoneyCenter.Schema;
 using MoneyCenter.Model;
+using CommunityToolkit.Maui.Alerts;
 
 namespace MoneyCenter.ViewModel
 {
@@ -48,6 +49,7 @@ namespace MoneyCenter.ViewModel
                 MonthId = newEntryModel.MonthId
             };
             await model.AddExpense(newEntryModel.MonthId, singleEntry);
+            await Toast.Make("Expense added successfully.", CommunityToolkit.Maui.Core.ToastDuration.Short).Show();
         }
     }
 }

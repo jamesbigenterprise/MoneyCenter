@@ -4,6 +4,7 @@ using MoneyCenter.Model;
 using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Maui.Alerts;
 using SchemaMonth = MoneyCenter.Schema.Month;
 
 namespace MoneyCenter.ViewModel
@@ -83,6 +84,7 @@ namespace MoneyCenter.ViewModel
         {
             await _model.DeleteExpense(_monthId, expenseId);
             await LoadExpensesAsync();
+            await Toast.Make("Expense deleted from ledger.", CommunityToolkit.Maui.Core.ToastDuration.Short).Show();
         }
     }
 }

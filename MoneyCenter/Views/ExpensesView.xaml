@@ -6,79 +6,127 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="MoneyCenter.Views.ExpensesView"
              x:DataType="viewmodel:ExpensesViewModel"
-             x:Name="RootView">
+             x:Name="RootView"
+             BackgroundColor="{AppThemeBinding Light={StaticResource AppBackgroundLight}, Dark={StaticResource AppBackgroundDark}}">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="10" RowSpacing="10">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="15" RowSpacing="15">
+        
+        <Label Grid.Row="0" Text="Expense Tracker" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource AppForegroundLight}, Dark={StaticResource AppForegroundDark}}" />
+        <Button Grid.Row="1" Text="Add Previous Year" Command="{Binding AddPreviousYearCommand}" HorizontalOptions="Center" WidthRequest="200" />
 
-        <Label Grid.Row="0" Text="Expense Tracker" FontSize="24" FontAttributes="Bold" />
-
-        <Button Grid.Row="1" Text="Add Previous Year" Command="{Binding AddPreviousYearCommand}" />
-
-        <!-- Year Hierarchy — ScrollView + BindableLayout avoids CollectionView unbounded-height issue -->
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Spacing="5" BindableLayout.ItemsSource="{Binding Years}">
+            <VerticalStackLayout Spacing="15" BindableLayout.ItemsSource="{Binding Years}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="viewmodel:YearViewModel">
-                        <toolkit:Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
-                            <toolkit:Expander.Header>
-                                <Label Text="{Binding YearValue}" FontAttributes="Bold" Padding="5" />
-                            </toolkit:Expander.Header>
+                        
+                        <!-- Outer Accordion: Year -->
+                        <Border Style="{StaticResource CardStyle}" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource AppSurface1Light}, Dark={StaticResource AppSurface1Dark}}">
+                            <toolkit:Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
+                                <toolkit:Expander.Header>
+                                    <Grid ColumnDefinitions="*,Auto" Padding="20">
+                                        <Label Grid.Column="0" Text="{Binding YearValue}" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="▼" FontSize="20" VerticalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
+                                                    <Setter Property="Text" Value="▲" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Grid>
+                                </toolkit:Expander.Header>
 
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Months}">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodel:MonthViewModel">
-                                        <toolkit:Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
-                                            <toolkit:Expander.Header>
-                                                <Grid ColumnDefinitions="2*,*,Auto,Auto" Padding="5">
-                                                    <VerticalStackLayout Grid.Column="0">
-                                                        <Label Text="{Binding MonthName}" FontAttributes="Bold" />
-                                                        <Label Text="{Binding TransactionCount, StringFormat='Transactions: {0}'}" FontSize="12" />
-                                                    </VerticalStackLayout>
-                                                    <Picker Grid.Column="1"
-                                                            ItemsSource="{Binding AllBudgets}"
-                                                            SelectedItem="{Binding SelectedBudget, Mode=TwoWay}"
-                                                            ItemDisplayBinding="{Binding Name}" />
-                                                    <Button Grid.Column="2" Text="+" Command="{Binding AddExpenseCommand}" WidthRequest="40" />
-                                                    <Button Grid.Column="3" Text="˅" Command="{Binding ToggleExpandCommand}" WidthRequest="40" />
-                                                </Grid>
-                                            </toolkit:Expander.Header>
-
-                                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Expenses}">
-                                                <BindableLayout.ItemTemplate>
-                                                    <DataTemplate x:DataType="objects:Expense">
-                                                        <Grid Padding="10,5" ColumnDefinitions="*,Auto,Auto">
-                                                            <VerticalStackLayout Grid.Column="0">
-                                                                <Label Text="{Binding Destination}" FontAttributes="Bold" />
-                                                                <Label Text="{Binding CategoryName}" FontSize="12" TextColor="Gray" />
-                                                                <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" FontSize="12" TextColor="Gray" />
-                                                                <Label Text="{Binding Details}" FontSize="12" />
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Months}" Padding="20,0,20,20" Spacing="10" BackgroundColor="{AppThemeBinding Light={StaticResource AppSurface1Light}, Dark={StaticResource AppSurface1Dark}}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="viewmodel:MonthViewModel">
+                                            
+                                            <!-- Inner Accordion: Month -->
+                                            <Border Style="{StaticResource CardStyle}" Padding="0" BackgroundColor="{AppThemeBinding Light={StaticResource AppSurface2Light}, Dark={StaticResource AppSurface2Dark}}">
+                                                <toolkit:Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
+                                                    <toolkit:Expander.Header>
+                                                        <Grid ColumnDefinitions="2*,2*,Auto,Auto" Padding="15">
+                                                            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                                                                <Label Text="{Binding MonthName}" FontSize="18" FontAttributes="Bold" />
+                                                                <Label Text="{Binding TransactionCount, StringFormat='Transactions: {0}'}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource AppMutedForegroundLight}, Dark={StaticResource AppMutedForegroundDark}}" />
                                                             </VerticalStackLayout>
-                                                            <Label Grid.Column="1"
-                                                                   Text="{Binding Amount, StringFormat='${0:F2}'}"
-                                                                   FontAttributes="Bold"
-                                                                   VerticalOptions="Center"
-                                                                   Margin="5,0" />
-                                                            <Button Grid.Column="2"
-                                                                    Text="🗑"
-                                                                    Command="{Binding DeleteCommand}"
-                                                                    BackgroundColor="Transparent"
-                                                                    TextColor="Red"
-                                                                    WidthRequest="40" />
+                                                            <Picker Grid.Column="1" VerticalOptions="Center" Margin="10,0" ItemsSource="{Binding AllBudgets}" SelectedItem="{Binding SelectedBudget, Mode=TwoWay}" ItemDisplayBinding="{Binding Name}" />
+                                                            <Button Grid.Column="2" VerticalOptions="Center" Text="+ Add Expense" Command="{Binding AddExpenseCommand}" Margin="0,0,10,0" Padding="10,5" />
+                                                            <Label Grid.Column="3" Text="▼" FontSize="16" VerticalOptions="Center">
+                                                                <Label.Triggers>
+                                                                    <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
+                                                                        <Setter Property="Text" Value="▲" />
+                                                                    </DataTrigger>
+                                                                </Label.Triggers>
+                                                            </Label>
                                                         </Grid>
-                                                    </DataTemplate>
-                                                </BindableLayout.ItemTemplate>
-                                            </VerticalStackLayout>
-                                        </toolkit:Expander>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </VerticalStackLayout>
-                        </toolkit:Expander>
+                                                    </toolkit:Expander.Header>
+
+                                                    <VerticalStackLayout Padding="15" BackgroundColor="{AppThemeBinding Light={StaticResource AppBackgroundLight}, Dark={StaticResource AppBackgroundDark}}">
+                                                        
+                                                        <!-- Desktop Header -->
+                                                        <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}" ColumnDefinitions="2*,*,*,Auto,Auto" Padding="10" Margin="0,0,0,10">
+                                                            <Label Grid.Column="0" Text="Destination" FontAttributes="Bold"/>
+                                                            <Label Grid.Column="1" Text="Category" FontAttributes="Bold"/>
+                                                            <Label Grid.Column="2" Text="Date" FontAttributes="Bold"/>
+                                                            <Label Grid.Column="3" Text="Amount" FontAttributes="Bold" HorizontalTextAlignment="End" Margin="0,0,20,0" WidthRequest="80"/>
+                                                            <Label Grid.Column="4" Text="Actions" FontAttributes="Bold" WidthRequest="40" HorizontalTextAlignment="Center"/>
+                                                        </Grid>
+
+                                                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Expenses}" Spacing="10">
+                                                            <BindableLayout.ItemTemplate>
+                                                                <DataTemplate x:DataType="objects:Expense">
+                                                                    <Grid>
+                                                                        <!-- Desktop Row -->
+                                                                        <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}" Padding="10" ColumnDefinitions="2*,*,*,Auto,Auto" BackgroundColor="{AppThemeBinding Light={StaticResource AppSurface1Light}, Dark={StaticResource AppSurface1Dark}}">
+                                                                            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                                                                                <Label Text="{Binding Destination}" FontAttributes="Bold" />
+                                                                                <Label Text="{Binding Details}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource AppMutedForegroundLight}, Dark={StaticResource AppMutedForegroundDark}}" />
+                                                                            </VerticalStackLayout>
+                                                                            <Border Grid.Column="1" Style="{StaticResource PillStyle}">
+                                                                                <Label Style="{StaticResource PillTextStyle}" Text="{Binding CategoryName}" />
+                                                                            </Border>
+                                                                            <Label Grid.Column="2" Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" VerticalOptions="Center" />
+                                                                            <Label Grid.Column="3" Text="{Binding Amount, StringFormat='${0:F2}'}" FontAttributes="Bold" VerticalOptions="Center" HorizontalTextAlignment="End" Margin="0,0,20,0" WidthRequest="80" />
+                                                                            <Button Grid.Column="4" Text="🗑" Command="{Binding DeleteCommand}" BackgroundColor="Transparent" TextColor="{StaticResource Destructive}" WidthRequest="40" Padding="0" VerticalOptions="Center" />
+                                                                        </Grid>
+
+                                                                        <!-- Mobile Card -->
+                                                                        <Border Style="{StaticResource CardStyle}" IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}" Padding="15">
+                                                                            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                                                                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Destination}" FontAttributes="Bold" FontSize="16" />
+                                                                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Amount, StringFormat='${0:F2}'}" FontAttributes="Bold" FontSize="16" VerticalOptions="Start" />
+                                                                                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="5" Margin="0,5,0,0">
+                                                                                    <Border Style="{StaticResource PillStyle}" HorizontalOptions="Start">
+                                                                                        <Label Style="{StaticResource PillTextStyle}" Text="{Binding CategoryName}" />
+                                                                                    </Border>
+                                                                                    <Label Text="{Binding Details}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource AppMutedForegroundLight}, Dark={StaticResource AppMutedForegroundDark}}" />
+                                                                                    <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource AppMutedForegroundLight}, Dark={StaticResource AppMutedForegroundDark}}" />
+                                                                                </VerticalStackLayout>
+                                                                                <Button Grid.Row="2" Grid.Column="1" Text="Delete" Command="{Binding DeleteCommand}" TextColor="{StaticResource Destructive}" BackgroundColor="Transparent" HorizontalOptions="End" Padding="0,10,0,0" />
+                                                                            </Grid>
+                                                                        </Border>
+                                                                    </Grid>
+                                                                </DataTemplate>
+                                                            </BindableLayout.ItemTemplate>
+                                                        </VerticalStackLayout>
+
+                                                        <Button Text="+ Add Expense" Command="{Binding AddExpenseCommand}" Margin="0,15,0,0" />
+                                                    </VerticalStackLayout>
+
+                                                </toolkit:Expander>
+                                            </Border>
+
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+
+                            </toolkit:Expander>
+                        </Border>
+
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
         </ScrollView>
 
-        <Button Grid.Row="3" Text="Add Next Year" Command="{Binding AddNextYearCommand}" />
-
+        <Button Grid.Row="3" Text="Add Next Year" Command="{Binding AddNextYearCommand}" HorizontalOptions="Center" WidthRequest="200" />
     </Grid>
 </ContentView>
