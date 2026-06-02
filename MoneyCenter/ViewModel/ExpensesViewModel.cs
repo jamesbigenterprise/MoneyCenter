@@ -42,6 +42,12 @@ public partial class ExpensesViewModel : ObservableObject
             var accountsList = await _model.GetPaymentAccounts();
             var schemaYears = await _model.GetYears();
 
+            if (!schemaYears.Any())
+            {
+                await _model.AddYear(DateTime.Now.Year);
+                schemaYears = await _model.GetYears();
+            }
+
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 Budgets.Clear();

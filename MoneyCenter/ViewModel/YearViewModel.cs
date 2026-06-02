@@ -39,9 +39,15 @@ namespace MoneyCenter.ViewModel
         public async Task LoadMonthsAsync()
         {
             var schemaMonths = await _model.GetMonthsByYear(_yearDbId);
-            Months.Clear();
-            foreach (var month in schemaMonths)
-                Months.Add(new MonthViewModel(month, _model, _budgets, _masterCategories));
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Months.Clear();
+                foreach (var month in schemaMonths)
+                    Months.Add(new MonthViewModel(month, _model, _budgets, _masterCategories));
+            });
         }
+
+        [CommunityToolkit.Mvvm.Input.RelayCommand]
+        private void ToggleExpand() => IsExpanded = !IsExpanded;
     }
 }

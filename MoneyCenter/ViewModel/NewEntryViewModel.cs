@@ -9,9 +9,12 @@ namespace MoneyCenter.ViewModel
     public partial class NewEntryViewModel : ObservableObject
     {
 
-
-        [ObservableProperty]
         private NewEntryInputData newEntryModel = new();
+        public NewEntryInputData NewEntryModel
+        {
+            get => newEntryModel;
+            set => SetProperty(ref newEntryModel, value);
+        }
         private readonly IModel model;
         private MainViewModel _home;
         public NewEntryViewModel(MainViewModel vm, IModel model) 

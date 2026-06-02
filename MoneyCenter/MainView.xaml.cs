@@ -1,4 +1,4 @@
-﻿using MoneyCenter.ViewModel;
+using MoneyCenter.ViewModel;
 using MoneyCenter.Views;
 namespace MoneyCenter;
 
@@ -59,6 +59,15 @@ public partial class MainView : ContentPage
         _savingsView.IsVisible = activeView == "savings";
         _budgetsView.IsVisible = activeView == "budgets";
         _settingsView.IsVisible = activeView == "settings";
+
+        if (activeView == "expenses")
+        {
+            if (_expensesView.BindingContext is ExpensesViewModel expVm) expVm.LoadData();
+        }
+        else if (activeView == "budgets")
+        {
+            if (_budgetsView.BindingContext is BudgetsViewModel budVm) _ = budVm.LoadDataAsync();
+        }
     }
 
     protected override void OnAppearing()
