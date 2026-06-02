@@ -175,20 +175,25 @@ namespace MoneyCenter.Views.Controls
 
     public static class ViewExtensions
     {
-        public static Task AnimateHeightAsync(this View view, double toHeight, uint duration)
+        public static async Task AnimateHeightAsync(this View view, double toHeight, uint duration)
         {
             double fromHeight = view.Height;
 
-            // Ensure the view is laid out correctly to get the initial height.
-            if (fromHeight == -1) fromHeight = view.Measure(double.PositiveInfinity, double.PositiveInfinity).Request.Height;
+            if (fromHeight < 0)
+                fromHeight = view.Measure(double.PositiveInfinity, double.PositiveInfinity).Height;
+
+            if (toHeight < 0)
+                toHeight = view.Measure(double.PositiveInfinity, double.PositiveInfinity).Height;
 
             var animation = new Animation(v => view.HeightRequest = v, fromHeight, toHeight);
             var tcs = new TaskCompletionSource<bool>();
 
-            // Commit the animation with the provided duration.
             animation.Commit(view, "HeightAnimation", 16, duration, Easing.Linear, (v, c) => tcs.SetResult(true));
 
-            return tcs.Task;
+            await tcs.Task;
+
+            if (toHeight > 0)
+                view.HeightRequest = -1;
         }
     }
 }
