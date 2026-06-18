@@ -2,42 +2,40 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
-             xmlns:converters="clr-namespace:MoneyCenter.Converters"
+             xmlns:controls="clr-namespace:MoneyCenter.Views.Controls"
              x:Class="MoneyCenter.MainView"
-             Title="Financial Dashboard">
+             x:DataType="viewmodel:MainViewModel"
+             Title="MoneyCenter"
+             BackgroundColor="{AppThemeBinding Light={StaticResource AppBackgroundLight}, Dark={StaticResource AppBackgroundDark}}">
 
-    <Grid RowDefinitions="Auto,*,Auto">
-        <!-- Tabs for Desktop -->
-        <Grid Grid.Row="0" IsVisible="{Binding IsDesktop}">
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
-                <Button Text="Dashboard" Command="{Binding NavigateCommand}" CommandParameter="dashboard" 
-                        BackgroundColor="{Binding ActiveView, Converter={StaticResource ActiveTabConverter}, ConverterParameter=dashboard}" />
-                <Button Text="Expenses" Command="{Binding NavigateCommand}" CommandParameter="expenses"
-                        BackgroundColor="{Binding ActiveView, Converter={StaticResource ActiveTabConverter}, ConverterParameter=expenses}" />
-                <Button Text="Savings" Command="{Binding NavigateCommand}" CommandParameter="savings"
-                        BackgroundColor="{Binding ActiveView, Converter={StaticResource ActiveTabConverter}, ConverterParameter=savings}" />
-                <Button Text="Budgets" Command="{Binding NavigateCommand}" CommandParameter="budgets"
-                        BackgroundColor="{Binding ActiveView, Converter={StaticResource ActiveTabConverter}, ConverterParameter=budgets}" />
-                <Button Text="Settings" Command="{Binding NavigateCommand}" CommandParameter="settings"
-                        BackgroundColor="{Binding ActiveView, Converter={StaticResource ActiveTabConverter}, ConverterParameter=settings}" />
-            </HorizontalStackLayout>
-        </Grid>
+    <Grid RowDefinitions="Auto,*,Auto"
+          Padding="{Binding IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='32,32,32,0|0'}">
 
-        <!-- Main Content -->
-        <Border Grid.Row="1" Margin="10" StrokeThickness="1" Padding="15">
-            <Grid x:Name="MainContent">
-            </Grid>
+        <Border Grid.Row="0"
+                IsVisible="{Binding IsDesktop}"
+                Padding="0"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 6"
+                BackgroundColor="{StaticResource AppSurface1Light}">
+            <controls:NavTabsView ActiveView="{Binding ActiveView}"
+                                  NavigateCommand="{Binding NavigateCommand}"
+                                  IsDesktop="True" />
         </Border>
 
-        <!-- Bottom Navigation for Mobile -->
-        <Grid Grid.Row="2" IsVisible="{Binding IsMobile}" BackgroundColor="LightGray" HeightRequest="60">
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="15" VerticalOptions="Center">
-                <ImageButton Source="dashboard_icon.png" Command="{Binding NavigateCommand}" CommandParameter="dashboard" />
-                <ImageButton Source="expenses_icon.png" Command="{Binding NavigateCommand}" CommandParameter="expenses" />
-                <ImageButton Source="savings_icon.png" Command="{Binding NavigateCommand}" CommandParameter="savings" />
-                <ImageButton Source="budgets_icon.png" Command="{Binding NavigateCommand}" CommandParameter="budgets" />
-                <ImageButton Source="settings_icon.png" Command="{Binding NavigateCommand}" CommandParameter="settings" />
-            </HorizontalStackLayout>
-        </Grid>
+        <Grid Grid.Row="1"
+              x:Name="MainContent"
+              Margin="{Binding IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='0,24,0,0|0'}" />
+
+        <Border Grid.Row="2"
+                IsVisible="{Binding IsMobile}"
+                Stroke="{StaticResource Gray300}"
+                StrokeThickness="1"
+                StrokeShape="Rectangle"
+                Padding="0"
+                BackgroundColor="{StaticResource AppSurface1Light}">
+            <controls:NavTabsView ActiveView="{Binding ActiveView}"
+                                  NavigateCommand="{Binding NavigateCommand}"
+                                  IsDesktop="False" />
+        </Border>
     </Grid>
 </ContentPage>

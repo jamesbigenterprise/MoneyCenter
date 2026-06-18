@@ -4,22 +4,22 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Re-mapped to Next.js Colors -->
+    <!-- Warm MVP palette -->
     <Color x:Key="Primary">#5B8C5A</Color>
     <Color x:Key="Secondary">#E6C97A</Color>
     <Color x:Key="Tertiary">#F4EEDC</Color>
     
     <!-- Backgrounds -->
-    <Color x:Key="White">#F4EEDC</Color> <!-- Light Mode Background -->
+    <Color x:Key="White">#FFFFFF</Color>
     <Color x:Key="Black">#171C17</Color> <!-- Dark Mode Background -->
     
     <!-- Surfaces & Borders -->
     <Color x:Key="Gray100">#F2EADF</Color> <!-- Light Surface 1 -->
     <Color x:Key="Gray200">#EFE6D8</Color> <!-- Light Surface 2 -->
-    <Color x:Key="Gray300">#DFD2B6</Color> <!-- Light Border -->
+    <Color x:Key="Gray300">#CFC2A9</Color> <!-- Light Border -->
     <Color x:Key="Gray400">#919191</Color> 
     <Color x:Key="Gray500">#B2B2A3</Color> <!-- Dark Muted Text -->
-    <Color x:Key="Gray600">#665A46</Color> <!-- Light Muted Text -->
+    <Color x:Key="Gray600">#7F6F4B</Color> <!-- Light Muted Text -->
     
     <!-- Texts & Dark Surfaces -->
     <Color x:Key="Gray900">#5A4D39</Color> <!-- Light Text Foreground -->
@@ -48,7 +48,7 @@
     <Color x:Key="Blue100Accent">#3E8EED</Color>
     <Color x:Key="Blue200Accent">#72ACF1</Color>
     <Color x:Key="Blue300Accent">#A7CBF6</Color>
-    <Color x:Key="Destructive">#E53935</Color>
+    <Color x:Key="Destructive">#EF4444</Color>
 
     <!-- Specific Semantic Theme Colors based on Next.js -->
     <Color x:Key="AppBackgroundLight">#F4EEDC</Color>
@@ -59,7 +59,12 @@
     <Color x:Key="AppSurface2Dark">#222A22</Color>
     <Color x:Key="AppForegroundLight">#5A4D39</Color>
     <Color x:Key="AppForegroundDark">#F4EEDC</Color>
-    <Color x:Key="AppMutedForegroundLight">#5A4D39</Color>
+    <Color x:Key="AppMutedForegroundLight">#75633F</Color>
     <Color x:Key="AppMutedForegroundDark">#B2B2A3</Color>
+
+    <Color x:Key="AppInputLight">#F4EEDC</Color>
+    <Color x:Key="AppNavActiveLight">#E7E8D0</Color>
+    <Color x:Key="AppProgressTrackLight">#E8DEC8</Color>
+    <Color x:Key="AppWarningLight">#E6C97A</Color>
 
 </ResourceDictionary>

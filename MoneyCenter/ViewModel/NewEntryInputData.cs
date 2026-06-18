@@ -5,6 +5,8 @@
         public NewEntryInputData() 
         {
             Date = DateTime.Now;
+            Store = string.Empty;
+            Details = string.Empty;
         }
         public DateTime Date { get; set; }
         public string Store { get; set; }

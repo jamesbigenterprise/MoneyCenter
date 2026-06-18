@@ -3,121 +3,319 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
              xmlns:objects="clr-namespace:MoneyCenter.ViewModel.Objects"
+             xmlns:icons="clr-namespace:MoneyCenter.Views.Icons"
              x:Class="MoneyCenter.Views.ExpensesView"
              x:DataType="viewmodel:ExpensesViewModel"
              x:Name="RootView"
              BackgroundColor="{AppThemeBinding Light={StaticResource AppBackgroundLight}, Dark={StaticResource AppBackgroundDark}}">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="15" RowSpacing="15">
-        <Label Grid.Row="0" Text="Expense Tracker" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource AppForegroundLight}, Dark={StaticResource AppForegroundDark}}" />
-        <Button Grid.Row="1" Text="Add Previous Year" Command="{Binding AddPreviousYearCommand}" HorizontalOptions="Center" WidthRequest="200" />
+    <ScrollView>
+        <Border Style="{StaticResource PanelStyle}"
+                Margin="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='0|16'}"
+                Padding="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='24|16'}">
+            <VerticalStackLayout Spacing="16">
+                <Border Stroke="{StaticResource Gray300}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 6"
+                        Padding="14,0"
+                        MinimumHeightRequest="40"
+                        HorizontalOptions="Fill"
+                        BackgroundColor="{StaticResource AppInputLight}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AddPreviousYearCommand}" />
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="12" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="{x:Static icons:MaterialIcon.Add}"
+                               FontFamily="MaterialIcon"
+                               FontSize="18"
+                               TextColor="{StaticResource AppForegroundLight}"
+                               VerticalOptions="Center" />
+                        <Label Text="{Binding AddPreviousYearText}"
+                               TextColor="{StaticResource AppForegroundLight}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
 
-        <ScrollView Grid.Row="2" HorizontalOptions="Fill" VerticalOptions="Fill">
-            <StackLayout Spacing="15" BindableLayout.ItemsSource="{Binding Years}" HorizontalOptions="Fill">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="viewmodel:YearViewModel">
-                        <StackLayout Spacing="0">
-                            
-                            <!-- Barebones Year Header Binding -->
-                            <Border Style="{StaticResource CardStyle}" Padding="15" BackgroundColor="{AppThemeBinding Light={StaticResource AppSurface1Light}, Dark={StaticResource AppSurface1Dark}}">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding ToggleExpandCommand}" />
-                                    </Grid.GestureRecognizers>
-                                    <Label Grid.Column="0" Text="{Binding YearValue, StringFormat='Year: {0}'}" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" Text="▼" FontSize="20" VerticalOptions="Center">
-                                        <Label.Triggers>
-                                            <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
-                                                <Setter Property="Text" Value="▲" />
-                                            </DataTrigger>
-                                        </Label.Triggers>
-                                    </Label>
-                                </Grid>
-                            </Border>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Years}" Spacing="16">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodel:YearViewModel">
+                            <Border Style="{StaticResource CardStyle}">
+                                <VerticalStackLayout Spacing="18">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleExpandCommand}" />
+                                        </Grid.GestureRecognizers>
+                                        <Label Text="{Binding YearValue}" FontSize="28" FontAttributes="Bold" VerticalOptions="Center" />
+                                        <Button Grid.Column="1"
+                                                Text="{x:Static icons:MaterialIcon.Keyboard_arrow_down}"
+                                                FontFamily="MaterialIcon"
+                                                FontSize="22"
+                                                Style="{StaticResource IconButtonStyle}"
+                                                BackgroundColor="{StaticResource AppWarningLight}">
+                                            <Button.Triggers>
+                                                <DataTrigger TargetType="Button" Binding="{Binding IsExpanded}" Value="True">
+                                                    <Setter Property="Text" Value="{x:Static icons:MaterialIcon.Keyboard_arrow_up}" />
+                                                </DataTrigger>
+                                            </Button.Triggers>
+                                        </Button>
+                                    </Grid>
 
-                            <!-- Months Simple List -->
-                            <StackLayout IsVisible="{Binding IsExpanded}" BindableLayout.ItemsSource="{Binding Months}" Padding="20,10,0,10" Spacing="10">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodel:MonthViewModel">
-                                        
-                                        <StackLayout>
-                                            <Border Style="{StaticResource CardStyle}" Padding="15" BackgroundColor="{AppThemeBinding Light={StaticResource AppSurface2Light}, Dark={StaticResource AppSurface2Dark}}">
-                                                <Grid ColumnDefinitions="2*,2*,Auto,Auto">
-                                                    <Grid.GestureRecognizers>
-                                                        <TapGestureRecognizer Command="{Binding ToggleExpandCommand}" />
-                                                    </Grid.GestureRecognizers>
-                                                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                                                        <Label Text="{Binding MonthName}" FontSize="18" FontAttributes="Bold" />
-                                                        <Label Text="{Binding TransactionCount, StringFormat='Transactions: {0}'}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource AppMutedForegroundLight}, Dark={StaticResource AppMutedForegroundDark}}" />
-                                                    </VerticalStackLayout>
-                                                    <Picker Grid.Column="1" VerticalOptions="Center" Margin="10,0" ItemsSource="{Binding AllBudgets}" SelectedItem="{Binding SelectedBudget, Mode=TwoWay}" ItemDisplayBinding="{Binding Name}" />
-                                                    <Button Grid.Column="2" VerticalOptions="Center" Text="+ Add Expense" Command="{Binding AddExpenseCommand}" Margin="0,0,10,0" Padding="10,5" />
-                                                    <Label Grid.Column="3" Text="▼" FontSize="16" VerticalOptions="Center">
-                                                        <Label.Triggers>
-                                                            <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
-                                                                <Setter Property="Text" Value="▲" />
-                                                            </DataTrigger>
-                                                        </Label.Triggers>
-                                                    </Label>
-                                                </Grid>
-                                            </Border>
+                                    <VerticalStackLayout IsVisible="{Binding IsExpanded}" BindableLayout.ItemsSource="{Binding Months}" Spacing="16">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="viewmodel:MonthViewModel">
+                                                <Border Style="{StaticResource NestedCardStyle}">
+                                                    <VerticalStackLayout Spacing="10">
+                                                        <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}"
+                                                              ColumnDefinitions="*,Auto,Auto,Auto"
+                                                              ColumnSpacing="10">
+                                                            <VerticalStackLayout Grid.Column="0" Spacing="0" VerticalOptions="Center">
+                                                                <Label Text="{Binding MonthName}" FontSize="20" FontAttributes="Bold" />
+                                                                <Label Text="{Binding TransactionCount, StringFormat='{0} transaction(s)'}" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                                            </VerticalStackLayout>
 
-                                            <VerticalStackLayout IsVisible="{Binding IsExpanded}" Padding="15,10,0,0">
-                                                <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}" ColumnDefinitions="2*,*,*,Auto,Auto" Padding="10" Margin="0,0,0,10">
-                                                    <Label Grid.Column="0" Text="Destination" FontAttributes="Bold"/>
-                                                    <Label Grid.Column="1" Text="Category" FontAttributes="Bold"/>
-                                                    <Label Grid.Column="2" Text="Date" FontAttributes="Bold"/>
-                                                    <Label Grid.Column="3" Text="Amount" FontAttributes="Bold" HorizontalTextAlignment="End" Margin="0,0,20,0" WidthRequest="80"/>
-                                                    <Label Grid.Column="4" Text="Actions" FontAttributes="Bold" WidthRequest="40" HorizontalTextAlignment="Center"/>
-                                                </Grid>
+                                                            <Border Grid.Column="1"
+                                                                    Style="{StaticResource InputBorderStyle}"
+                                                                    Padding="10,0"
+                                                                    WidthRequest="112"
+                                                                    VerticalOptions="Center">
+                                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                                    <Label Text="{x:Static icons:MaterialIcon.Business_center}"
+                                                                           FontFamily="MaterialIcon"
+                                                                           FontSize="17"
+                                                                           VerticalOptions="Center"
+                                                                           TextColor="{StaticResource AppForegroundLight}" />
+                                                                    <Label Grid.Column="1"
+                                                                           Text="{Binding SelectedBudget.Name, TargetNullValue='Default'}"
+                                                                           VerticalOptions="Center"
+                                                                           LineBreakMode="TailTruncation"
+                                                                           TextColor="{StaticResource AppForegroundLight}" />
+                                                                    <Picker Grid.ColumnSpan="2"
+                                                                            ItemsSource="{Binding AllBudgets}"
+                                                                            SelectedItem="{Binding SelectedBudget, Mode=TwoWay}"
+                                                                            ItemDisplayBinding="{Binding Name}"
+                                                                            FontSize="14"
+                                                                            HeightRequest="36"
+                                                                            VerticalOptions="Center"
+                                                                            Opacity="0.01" />
+                                                                </Grid>
+                                                            </Border>
 
-                                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Expenses}" Spacing="10">
-                                                    <BindableLayout.ItemTemplate>
-                                                        <DataTemplate x:DataType="objects:Expense">
-                                                            <Grid>
-                                                                <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}" Padding="10" ColumnDefinitions="2*,*,*,Auto,Auto" BackgroundColor="{AppThemeBinding Light={StaticResource AppSurface1Light}, Dark={StaticResource AppSurface1Dark}}">
-                                                                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                                                                        <Label Text="{Binding Destination}" FontAttributes="Bold" />
-                                                                        <Label Text="{Binding Details}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource AppMutedForegroundLight}, Dark={StaticResource AppMutedForegroundDark}}" />
+                                                            <Border Grid.Column="2"
+                                                                    Style="{StaticResource PrimaryActionBorderStyle}">
+                                                                <Border.GestureRecognizers>
+                                                                    <TapGestureRecognizer Command="{Binding AddExpenseCommand}" />
+                                                                </Border.GestureRecognizers>
+                                                                <HorizontalStackLayout Spacing="8">
+                                                                    <Label Text="{x:Static icons:MaterialIcon.Add_circle_outline}" Style="{StaticResource PrimaryActionIconTextStyle}" />
+                                                                    <Label Text="Add Expense" Style="{StaticResource PrimaryActionLabelTextStyle}" />
+                                                                </HorizontalStackLayout>
+                                                            </Border>
+
+                                                            <Button Grid.Column="3"
+                                                                    Text="{x:Static icons:MaterialIcon.Keyboard_arrow_down}"
+                                                                    FontFamily="MaterialIcon"
+                                                                    FontSize="22"
+                                                                    Style="{StaticResource IconButtonStyle}"
+                                                                    Command="{Binding ToggleExpandCommand}">
+                                                                <Button.Triggers>
+                                                                    <DataTrigger TargetType="Button" Binding="{Binding IsExpanded}" Value="True">
+                                                                        <Setter Property="Text" Value="{x:Static icons:MaterialIcon.Keyboard_arrow_up}" />
+                                                                        <Setter Property="BackgroundColor" Value="{StaticResource AppWarningLight}" />
+                                                                    </DataTrigger>
+                                                                </Button.Triggers>
+                                                            </Button>
+                                                        </Grid>
+
+                                                        <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}"
+                                                              RowDefinitions="Auto,Auto"
+                                                              ColumnDefinitions="*,Auto"
+                                                              RowSpacing="10"
+                                                              ColumnSpacing="10">
+                                                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="0" VerticalOptions="Center">
+                                                                <Label Text="{Binding MonthName}" FontSize="20" FontAttributes="Bold" />
+                                                                <Label Text="{Binding TransactionCount, StringFormat='{0} transaction(s)'}" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                                            </VerticalStackLayout>
+
+                                                            <Button Grid.Row="0"
+                                                                    Grid.Column="1"
+                                                                    Text="{x:Static icons:MaterialIcon.Keyboard_arrow_down}"
+                                                                    FontFamily="MaterialIcon"
+                                                                    FontSize="22"
+                                                                    Style="{StaticResource IconButtonStyle}"
+                                                                    Command="{Binding ToggleExpandCommand}">
+                                                                <Button.Triggers>
+                                                                    <DataTrigger TargetType="Button" Binding="{Binding IsExpanded}" Value="True">
+                                                                        <Setter Property="Text" Value="{x:Static icons:MaterialIcon.Keyboard_arrow_up}" />
+                                                                        <Setter Property="BackgroundColor" Value="{StaticResource AppWarningLight}" />
+                                                                    </DataTrigger>
+                                                                </Button.Triggers>
+                                                            </Button>
+
+                                                            <Border Grid.Row="1"
+                                                                    Grid.Column="0"
+                                                                    Style="{StaticResource InputBorderStyle}"
+                                                                    Padding="10,0"
+                                                                    HorizontalOptions="Fill"
+                                                                    VerticalOptions="Center">
+                                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                                    <Label Text="{x:Static icons:MaterialIcon.Business_center}"
+                                                                           FontFamily="MaterialIcon"
+                                                                           FontSize="17"
+                                                                           VerticalOptions="Center"
+                                                                           TextColor="{StaticResource AppForegroundLight}" />
+                                                                    <Label Grid.Column="1"
+                                                                           Text="{Binding SelectedBudget.Name, TargetNullValue='Default'}"
+                                                                           VerticalOptions="Center"
+                                                                           LineBreakMode="TailTruncation"
+                                                                           TextColor="{StaticResource AppForegroundLight}" />
+                                                                    <Picker Grid.ColumnSpan="2"
+                                                                            ItemsSource="{Binding AllBudgets}"
+                                                                            SelectedItem="{Binding SelectedBudget, Mode=TwoWay}"
+                                                                            ItemDisplayBinding="{Binding Name}"
+                                                                            FontSize="14"
+                                                                            HeightRequest="36"
+                                                                            VerticalOptions="Center"
+                                                                            Opacity="0.01" />
+                                                                </Grid>
+                                                            </Border>
+
+                                                            <Button Grid.Row="1"
+                                                                    Grid.Column="1"
+                                                                    Text="{x:Static icons:MaterialIcon.Add_circle_outline}"
+                                                                    FontFamily="MaterialIcon"
+                                                                    FontSize="20"
+                                                                    Style="{StaticResource IconButtonStyle}"
+                                                                    BackgroundColor="{StaticResource Primary}"
+                                                                    TextColor="{StaticResource White}"
+                                                                    Command="{Binding AddExpenseCommand}" />
+                                                        </Grid>
+
+                                                        <Border IsVisible="{Binding IsExpanded}"
+                                                                Style="{StaticResource CardStyle}"
+                                                                BackgroundColor="{StaticResource AppInputLight}"
+                                                                Padding="16">
+                                                            <VerticalStackLayout Spacing="12">
+                                                                <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}"
+                                                                      RowDefinitions="Auto,1,Auto"
+                                                                      ColumnDefinitions="2*,*,*,96,84"
+                                                                      RowSpacing="14"
+                                                                      ColumnSpacing="12">
+                                                                    <Label Text="Destination" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                                                    <Label Grid.Column="1" Text="Category" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                                                    <Label Grid.Column="2" Text="Date" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                                                    <Label Grid.Column="3" Text="Amount" HorizontalTextAlignment="End" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                                                    <Label Grid.Column="4" Text="Actions" HorizontalTextAlignment="Center" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                                                    <BoxView Grid.Row="1" Grid.ColumnSpan="5" HeightRequest="1" Color="{StaticResource Gray300}" />
+
+                                                                    <VerticalStackLayout Grid.Row="2" Grid.ColumnSpan="5" BindableLayout.ItemsSource="{Binding Expenses}">
+                                                                        <BindableLayout.ItemTemplate>
+                                                                            <DataTemplate x:DataType="objects:Expense">
+                                                                                <Grid ColumnDefinitions="2*,*,*,96,84" Padding="0,10" ColumnSpacing="12">
+                                                                                    <Label Text="{Binding Destination}" />
+                                                                                    <Label Grid.Column="1" Text="{Binding CategoryName}" />
+                                                                                    <Label Grid.Column="2" Text="{Binding Date, StringFormat='{0:MMM d, yyyy}'}" />
+                                                                                    <Label Grid.Column="3" Text="{Binding Amount, StringFormat='${0:F2}'}" HorizontalTextAlignment="End" />
+                                                                                    <HorizontalStackLayout Grid.Column="4" Spacing="10" HorizontalOptions="Center">
+                                                                                        <Button Text="{x:Static icons:MaterialIcon.Mode_edit_outline}" Style="{StaticResource MaterialIconOutlineButtonStyle}" WidthRequest="36" />
+                                                                                        <Button Text="{x:Static icons:MaterialIcon.Delete_outline}" Style="{StaticResource MaterialIconDangerButtonStyle}" Command="{Binding DeleteCommand}" WidthRequest="36" />
+                                                                                    </HorizontalStackLayout>
+                                                                                </Grid>
+                                                                            </DataTemplate>
+                                                                        </BindableLayout.ItemTemplate>
                                                                     </VerticalStackLayout>
-                                                                    <Border Grid.Column="1" Style="{StaticResource PillStyle}">
-                                                                        <Label Style="{StaticResource PillTextStyle}" Text="{Binding CategoryName}" />
-                                                                    </Border>
-                                                                    <Label Grid.Column="2" Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" VerticalOptions="Center" />
-                                                                    <Label Grid.Column="3" Text="{Binding Amount, StringFormat='${0:F2}'}" FontAttributes="Bold" VerticalOptions="Center" HorizontalTextAlignment="End" Margin="0,0,20,0" WidthRequest="80" />
-                                                                    <Button Grid.Column="4" Text="🗑" Command="{Binding DeleteCommand}" BackgroundColor="Transparent" TextColor="{StaticResource Destructive}" WidthRequest="40" Padding="0" VerticalOptions="Center" />
                                                                 </Grid>
 
-                                                                <Border Style="{StaticResource CardStyle}" IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}" Padding="15">
-                                                                    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
-                                                                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding Destination}" FontAttributes="Bold" FontSize="16" />
-                                                                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Amount, StringFormat='${0:F2}'}" FontAttributes="Bold" FontSize="16" VerticalOptions="Start" />
-                                                                        <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="5" Margin="0,5,0,0">
-                                                                            <Border Style="{StaticResource PillStyle}" HorizontalOptions="Start">
-                                                                                <Label Style="{StaticResource PillTextStyle}" Text="{Binding CategoryName}" />
+                                                                <VerticalStackLayout IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}"
+                                                                                     BindableLayout.ItemsSource="{Binding Expenses}"
+                                                                                     Spacing="10">
+                                                                    <BindableLayout.ItemTemplate>
+                                                                        <DataTemplate x:DataType="objects:Expense">
+                                                                            <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource AppInputLight}">
+                                                                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                                                                    <Label Text="{Binding Destination}" FontSize="16" FontAttributes="Bold" />
+                                                                                    <Label Grid.Column="1" Text="{Binding Amount, StringFormat='${0:F2}'}" FontSize="18" FontAttributes="Bold" />
+                                                                                    <Border Grid.Row="1" Style="{StaticResource PillStyle}" Margin="0,6,0,0">
+                                                                                        <Label Text="{Binding CategoryName}" Style="{StaticResource PillTextStyle}" />
+                                                                                    </Border>
+                                                                                    <Label Grid.Row="2" Text="{Binding Date, StringFormat='{0:MMMM d, yyyy}'}" TextColor="{StaticResource AppMutedForegroundLight}" Margin="0,10,0,0" />
+                                                                                    <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="10" HorizontalOptions="End">
+                                                                                        <Button Text="{x:Static icons:MaterialIcon.Mode_edit_outline}" Style="{StaticResource MaterialIconGhostButtonStyle}" WidthRequest="36" />
+                                                                                        <Button Text="{x:Static icons:MaterialIcon.Delete_outline}" Style="{StaticResource MaterialIconDangerButtonStyle}" Command="{Binding DeleteCommand}" WidthRequest="36" />
+                                                                                    </HorizontalStackLayout>
+                                                                                </Grid>
                                                                             </Border>
-                                                                            <Label Text="{Binding Details}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource AppMutedForegroundLight}, Dark={StaticResource AppMutedForegroundDark}}" />
-                                                                            <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource AppMutedForegroundLight}, Dark={StaticResource AppMutedForegroundDark}}" />
-                                                                        </VerticalStackLayout>
-                                                                        <Button Grid.Row="2" Grid.Column="1" Text="Delete" Command="{Binding DeleteCommand}" TextColor="{StaticResource Destructive}" BackgroundColor="Transparent" HorizontalOptions="End" Padding="0,10,0,0" />
-                                                                    </Grid>
+                                                                        </DataTemplate>
+                                                                    </BindableLayout.ItemTemplate>
+                                                                </VerticalStackLayout>
+
+                                                                <Label Text="No expenses yet for this month."
+                                                                       IsVisible="{Binding TransactionCount, Converter={StaticResource IsZeroConverter}}"
+                                                                       HorizontalOptions="Center"
+                                                                       VerticalOptions="Center"
+                                                                       VerticalTextAlignment="Center"
+                                                                       MinimumHeightRequest="96"
+                                                                       Margin="0,12"
+                                                                       TextColor="{StaticResource AppMutedForegroundLight}" />
+
+                                                                <Border Stroke="{StaticResource Gray300}"
+                                                                        StrokeThickness="1"
+                                                                        StrokeShape="RoundRectangle 6"
+                                                                        Padding="14,0"
+                                                                        MinimumHeightRequest="40"
+                                                                        HorizontalOptions="Fill"
+                                                                        BackgroundColor="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#E6C97A|#F4EEDC'}">
+                                                                    <Border.GestureRecognizers>
+                                                                        <TapGestureRecognizer Command="{Binding AddExpenseCommand}" />
+                                                                    </Border.GestureRecognizers>
+                                                                    <HorizontalStackLayout Spacing="8"
+                                                                                           HorizontalOptions="Center"
+                                                                                           VerticalOptions="Center">
+                                                                        <Label Text="{x:Static icons:MaterialIcon.Add_circle_outline}"
+                                                                               FontFamily="MaterialIcon"
+                                                                               FontSize="18"
+                                                                               VerticalOptions="Center"
+                                                                               TextColor="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#FFFFFF|#5A4D39'}" />
+                                                                        <Label Text="Add Expense"
+                                                                               FontSize="14"
+                                                                               VerticalOptions="Center"
+                                                                               TextColor="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='#FFFFFF|#5A4D39'}" />
+                                                                    </HorizontalStackLayout>
                                                                 </Border>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </BindableLayout.ItemTemplate>
-                                                </VerticalStackLayout>
-                                            </VerticalStackLayout>
-                                        </StackLayout>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </StackLayout>
+                                                            </VerticalStackLayout>
+                                                        </Border>
+                                                    </VerticalStackLayout>
+                                                </Border>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
-                        </StackLayout>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </StackLayout>
-        </ScrollView>
-
-        <Button Grid.Row="3" Text="Add Next Year" Command="{Binding AddNextYearCommand}" HorizontalOptions="Center" WidthRequest="200" />
-    </Grid>
+                <Border Stroke="{StaticResource Gray300}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 6"
+                        Padding="14,0"
+                        MinimumHeightRequest="40"
+                        HorizontalOptions="Fill"
+                        BackgroundColor="{StaticResource AppInputLight}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AddNextYearCommand}" />
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="12" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="{x:Static icons:MaterialIcon.Add}"
+                               FontFamily="MaterialIcon"
+                               FontSize="18"
+                               TextColor="{StaticResource AppForegroundLight}"
+                               VerticalOptions="Center" />
+                        <Label Text="{Binding AddNextYearText}"
+                               TextColor="{StaticResource AppForegroundLight}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </Border>
+    </ScrollView>
 </ContentView>

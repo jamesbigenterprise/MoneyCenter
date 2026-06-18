@@ -64,6 +64,66 @@ namespace MoneyCenter.Model
             return await _database.GetAllBudgetsAsync();
         }
 
+        public async Task AddBudget(Budget budget)
+        {
+            await InitializeDatabase();
+            await _database.InsertBudgetAsync(budget);
+        }
+
+        public async Task UpdateBudget(Budget budget)
+        {
+            await InitializeDatabase();
+            await _database.UpdateBudgetAsync(budget);
+        }
+
+        public async Task DeleteBudget(string budgetId)
+        {
+            await InitializeDatabase();
+            var budget = await _database.GetBudgetAsync(budgetId);
+            if (budget == null || budget.IsDefault)
+            {
+                return;
+            }
+
+            var assignments = await _database.GetCategoriesByBudgetIdNewAsync(budgetId);
+            foreach (var assignment in assignments)
+            {
+                await _database.DeleteBudgetMasterCategoryAsync(assignment);
+            }
+
+            await _database.DeleteBudgetAsync(budget);
+        }
+
+        // Category type operations
+        public async Task<List<CategoryType>> GetCategoryTypes()
+        {
+            await InitializeDatabase();
+            await _database.EnsureCategoryTypesAsync(GetDefaultCategoryTypes());
+            return await _database.GetAllCategoryTypesAsync();
+        }
+
+        public async Task AddCategoryType(CategoryType type)
+        {
+            await InitializeDatabase();
+            await _database.InsertCategoryTypeAsync(type);
+        }
+
+        public async Task UpdateCategoryType(CategoryType type)
+        {
+            await InitializeDatabase();
+            await _database.UpdateCategoryTypeAsync(type);
+        }
+
+        public async Task DeleteCategoryType(string key)
+        {
+            await InitializeDatabase();
+            var type = await _database.GetCategoryTypeByKeyAsync(key);
+            if (type != null)
+            {
+                await _database.DeleteCategoryTypeAsync(type);
+            }
+        }
+
         // MasterCategory operations
         public async Task<List<MasterCategory>> GetMasterCategories()
         {
@@ -101,6 +161,12 @@ namespace MoneyCenter.Model
             var category = await _database.GetMasterCategoryByIdAsync(categoryId);
             if (category != null)
             {
+                var assignments = await _database.GetBudgetsByMasterCategoryAsync(categoryId);
+                foreach (var assignment in assignments)
+                {
+                    await _database.DeleteBudgetMasterCategoryAsync(assignment);
+                }
+
                 await _database.DeleteMasterCategoryAsync(category);
             }
         }
@@ -336,6 +402,7 @@ namespace MoneyCenter.Model
         public async Task SeedInitialData()
         {
             await InitializeDatabase();
+            await _database.EnsureCategoryTypesAsync(GetDefaultCategoryTypes());
 
             // Check if data already exists
             var budgetCount = await _database.GetBudgetCountAsync();
@@ -437,6 +504,37 @@ namespace MoneyCenter.Model
                 new MasterCategory { Name = "Emergency Fund", Type = "savings", Description = "Emergency savings" },
                 new MasterCategory { Name = "Retirement", Type = "savings", Description = "Retirement savings" },
                 new MasterCategory { Name = "Vacation", Type = "savings", Description = "Vacation fund" }
+            };
+        }
+
+        private List<CategoryType> GetDefaultCategoryTypes()
+        {
+            return new List<CategoryType>
+            {
+                new CategoryType
+                {
+                    Key = "expense",
+                    Name = "Expense",
+                    Color = "#EF4444",
+                    TextColor = "#FFFFFF",
+                    IsSystem = true
+                },
+                new CategoryType
+                {
+                    Key = "income",
+                    Name = "Income",
+                    Color = "#5B8C5A",
+                    TextColor = "#FFFFFF",
+                    IsSystem = true
+                },
+                new CategoryType
+                {
+                    Key = "savings",
+                    Name = "Savings",
+                    Color = "#EFE6D8",
+                    TextColor = "#5A4D39",
+                    IsSystem = true
+                }
             };
         }
 

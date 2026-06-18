@@ -7,6 +7,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <converters:ActiveTabConverter x:Key="ActiveTabConverter" />
+            <converters:BoolToObjectConverter x:Key="BoolToObjectConverter" />
+            <converters:IsNotZeroConverter x:Key="IsNotZeroConverter" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />

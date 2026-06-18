@@ -1,144 +1,129 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MoneyCenter.Views.NewEntryView"
              xmlns:vm="clr-namespace:MoneyCenter.ViewModel"
+             xmlns:icons="clr-namespace:MoneyCenter.Views.Icons"
+             x:Class="MoneyCenter.Views.NewEntryView"
              x:DataType="vm:NewEntryViewModel"
-              BackgroundColor="#156E2F">
-    <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-        <Grid VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-            <Button Text="X"
-HorizontalOptions="End" VerticalOptions="Start"
-Margin="0,20,20,0"
-        Command="{Binding CloseCommand}"/>
-            <StackLayout Padding="20"
-         VerticalOptions="CenterAndExpand"
-         HorizontalOptions="FillAndExpand">
+             BackgroundColor="#CC000000">
 
-                <!--Date-->
-                <Border Stroke="Black" 
-                        StrokeThickness="5" 
-                        Background="White" 
-                        Margin="0,0,0,10"
-                        HorizontalOptions="FillAndExpand">
-                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                        <DatePicker x:Name="DateSelected"
-                    VerticalOptions="Center"
-                    Format="D"
-                    Date="{Binding NewEntryModel.Date}"
-                    BackgroundColor="White"
-                    TextColor="Black"
-        />
-                    </StackLayout>
-                </Border>
-                <!--Store-->
-                <Border Stroke="Black" 
-    StrokeThickness="5" 
-    Background="White" 
-    Margin="0,0,0,10">
-                <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                    <Entry x:Name="Store"
-                       Placeholder="Transaction Location"
-                       VerticalOptions="CenterAndExpand"
-                            HorizontalOptions="FillAndExpand"
-                           TextColor="Black"
-                           Text="{Binding NewEntryModel.Store}"/>
-                </StackLayout>
-</Border>
-                 <!--Details-->
-                <Border Stroke="Black" 
-    StrokeThickness="5" 
-    Background="White" 
-    Margin="0,0,0,10">
-                    <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
+    <Grid Padding="16">
+        <ScrollView VerticalOptions="Center" HorizontalOptions="Center">
+            <Border Style="{StaticResource PanelStyle}"
+                    BackgroundColor="{StaticResource AppBackgroundLight}"
+                    HorizontalOptions="Fill"
+                    MaximumWidthRequest="512"
+                    Padding="24">
+                <VerticalStackLayout Spacing="18">
+                    <Grid ColumnDefinitions="*,36">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Add a New Expense"
+                                   FontSize="18"
+                                   FontAttributes="Bold" />
+                            <Label Text="Log a new transaction for this month."
+                                   TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="{x:Static icons:MaterialIcon.Close}"
+                                Command="{Binding CloseCommand}"
+                                FontFamily="MaterialIcon"
+                                FontSize="20"
+                                BackgroundColor="Transparent"
+                                BorderColor="Transparent"
+                                BorderWidth="0"
+                                TextColor="{StaticResource AppMutedForegroundLight}"
+                                WidthRequest="36"
+                                HeightRequest="36"
+                                MinimumWidthRequest="36"
+                                MinimumHeightRequest="36"
+                                Padding="0" />
+                    </Grid>
 
-                    <Entry x:Name="Details"
-                       Placeholder="Transaction Details"
-                       VerticalOptions="CenterAndExpand"
-     HorizontalOptions="FillAndExpand"
-                           TextColor="Black"
-                           Text="{Binding NewEntryModel.Details}"/>
-                </StackLayout>
-</Border>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Expense Destination" />
+                        <Entry Placeholder="Select or type destination..."
+                               Text="{Binding NewEntryModel.Store}"
+                               BackgroundColor="{StaticResource AppInputLight}"
+                               HeightRequest="40"
+                               MinimumHeightRequest="40" />
+                    </VerticalStackLayout>
 
-                <!--Money Amount-->
-                <Border Stroke="Black" 
-                    StrokeThickness="5" 
-                    Background="White" 
-                    Margin="0,0,0,10">
-                    <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                        <Entry x:Name="Amount" 
-                       Placeholder="Enter Amount"
-                       VerticalOptions="CenterAndExpand"
-     HorizontalOptions="FillAndExpand"
-                               TextColor="Black"
-                       Text="{Binding NewEntryModel.Amount}"/>
-                    </StackLayout>
-                </Border>
-                <!--Category ID-->
-                <Border Stroke="Black" 
-    StrokeThickness="5" 
-    Background="White" 
-    Margin="0,0,0,10">
-                    <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                        
-                        <Entry x:Name="Category" 
-                       Placeholder="Category ID"
-                       VerticalOptions="CenterAndExpand"
-     HorizontalOptions="FillAndExpand"
-                       Keyboard="Numeric"
-                               TextColor="Black"
-                       Text="{Binding NewEntryModel.MasterCategoryId}"/>
-                    </StackLayout>
-                </Border>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Category" />
+                        <Border Style="{StaticResource InputBorderStyle}" Padding="12,0">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding SelectedCategory.Name, TargetNullValue='Select or create category...'}"
+                                       TextColor="{StaticResource AppMutedForegroundLight}"
+                                       VerticalOptions="Center"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Grid.Column="1"
+                                       Text="{x:Static icons:MaterialIcon.Expand_more}"
+                                       FontFamily="MaterialIcon"
+                                       FontSize="20"
+                                       TextColor="{StaticResource AppMutedForegroundLight}"
+                                       VerticalOptions="Center" />
+                                <Picker Grid.ColumnSpan="2"
+                                        Title="Select or create category..."
+                                    ItemsSource="{Binding MasterCategories}"
+                                    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                                        ItemDisplayBinding="{Binding Name}"
+                                        Opacity="0.01"
+                                        HeightRequest="40" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
 
-                <!--Payment Account ID-->
-                <Border Stroke="Black" 
-                StrokeThickness="5" 
-                Background="White" 
-                Margin="0,0,0,10">
-                    <StackLayout Orientation="Horizontal" Margin="0,0,0,10">
-                   
-                    <Entry x:Name="PaymentMethod"
-                       Placeholder="Payment Account ID"
-                       VerticalOptions="CenterAndExpand"
-     HorizontalOptions="FillAndExpand"
-                       Keyboard="Numeric"
-                           TextColor="Black"
-                       Text="{Binding NewEntryModel.PaymentAccountId}"/>
-                </StackLayout>
-</Border>
-                 <!--Month ID-->
-                <Border Stroke="Black" 
-    StrokeThickness="5" 
-    Background="White" 
-    Margin="0,0,0,10">
-                    <StackLayout Orientation="Horizontal" >
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Description (Optional)" />
+                        <Editor Placeholder="e.g., Weekly groceries, new headphones"
+                                Text="{Binding NewEntryModel.Details}"
+                                BackgroundColor="{StaticResource AppInputLight}"
+                                HeightRequest="82"
+                                MinimumHeightRequest="82" />
+                    </VerticalStackLayout>
 
-                    <Entry x:Name="Month"
-                       Placeholder="Month ID"
-                       VerticalOptions="CenterAndExpand"
-     HorizontalOptions="FillAndExpand"
-                       Keyboard="Numeric"
-                           TextColor="Black"
-                       Text="{Binding NewEntryModel.MonthId}"/>
-                </StackLayout>
-                    </Border>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Date" />
+                            <Border Style="{StaticResource InputBorderStyle}" Padding="12,0">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding NewEntryModel.Date, StringFormat='{0:MMMM d\\, yyyy}'}"
+                                           VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Grid.Column="1"
+                                           Text="{x:Static icons:MaterialIcon.Calendar_today}"
+                                           FontFamily="MaterialIcon"
+                                           TextColor="{StaticResource AppMutedForegroundLight}"
+                                           FontSize="18"
+                                           VerticalOptions="Center" />
+                                    <DatePicker Grid.ColumnSpan="2"
+                                                Date="{Binding NewEntryModel.Date}"
+                                                Opacity="0.01"
+                                                HeightRequest="40" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
 
+                        <VerticalStackLayout Grid.Column="1" Spacing="8">
+                            <Label Text="Amount" />
+                            <Entry Keyboard="Numeric"
+                                   HorizontalTextAlignment="End"
+                                   BackgroundColor="{StaticResource AppInputLight}"
+                                   HeightRequest="40"
+                                   MinimumHeightRequest="40"
+                                   Text="{Binding NewEntryModel.Amount}" />
+                        </VerticalStackLayout>
+                    </Grid>
 
-                 <!--Save Button--> 
-                <Button Text="Save"
-                    
-                    BackgroundColor="#006400"
-                    TextColor="White"
-                    CornerRadius="5"
-                    VerticalOptions="End"
-                    Margin="0,20,0,0"
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    HorizontalOptions="Center"
-                    Command="{Binding SaveCommand}"/>
-            </StackLayout>
-        </Grid>
-    </ScrollView>
+                    <HorizontalStackLayout HorizontalOptions="End" Spacing="8" Margin="0,8,0,0">
+                        <Button Text="Cancel"
+                                Command="{Binding CloseCommand}"
+                                Style="{StaticResource GhostButtonStyle}" />
+                        <Button Text="Add Expense"
+                                Command="{Binding SaveCommand}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </ScrollView>
+    </Grid>
 </ContentPage>

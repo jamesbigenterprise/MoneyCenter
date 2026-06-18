@@ -47,6 +47,19 @@ namespace MoneyCenter.ViewModel.Extensions
             };
         }
 
+        public static ViewModel.Objects.CategoryType ToViewModel(this Schema.CategoryType type)
+        {
+            if (type == null) return null;
+            return new ViewModel.Objects.CategoryType
+            {
+                Key = type.Key,
+                Name = type.Name,
+                Color = type.Color,
+                TextColor = type.TextColor,
+                IsSystem = type.IsSystem
+            };
+        }
+
         public static ViewModel.Objects.Budget ToViewModel(this Schema.Budget budget)
         {
             if (budget == null) return null;
@@ -98,7 +111,7 @@ namespace MoneyCenter.ViewModel.Extensions
             {
                 BudgetId = budgetId ?? string.Empty,
                 MasterCategoryId = category.Id,
-                Amount = category.Amount,
+                Amount = category.Amount ?? 0,
                 IsRecurring = category.IsRecurring,
                 DayOfMonth = category.DayOfMonth
             };

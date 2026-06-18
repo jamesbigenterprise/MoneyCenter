@@ -2,10 +2,26 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MoneyCenter.Views.PermissionsPage"
-             Title="Permissions">
-    <StackLayout Padding="40" VerticalOptions="Center">
-        <Label Text="Permissions Step" FontSize="32" HorizontalOptions="Center"/>
-        <Label Text="(No permissions needed for now)" FontSize="18" HorizontalOptions="Center"/>
-        <Button Text="Finish Setup" Command="{Binding FinishSetupCommand}" VerticalOptions="End" Margin="40"/>
-    </StackLayout>
+             Title="Permissions"
+             BackgroundColor="{StaticResource AppBackgroundLight}">
+    <Grid RowDefinitions="*,Auto" Padding="40" BackgroundColor="{StaticResource AppBackgroundLight}">
+        <VerticalStackLayout VerticalOptions="Center" Spacing="8">
+            <Label Text="Permissions Step"
+                   FontSize="32"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{StaticResource AppForegroundLight}" />
+            <Label Text="(No permissions needed for now)"
+                   FontSize="18"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{StaticResource AppForegroundLight}" />
+        </VerticalStackLayout>
+        <Button Grid.Row="1"
+                Text="Finish Setup"
+                Command="{Binding FinishSetupCommand}"
+                Style="{StaticResource OutlineButtonStyle}"
+                BackgroundColor="{StaticResource AppBackgroundLight}"
+                TextColor="{StaticResource Primary}"
+                HorizontalOptions="Fill"
+                Margin="0,24" />
+    </Grid>
 </ContentPage>

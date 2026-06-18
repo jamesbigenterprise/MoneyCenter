@@ -12,18 +12,21 @@ namespace MoneyCenter.ViewModel
         private readonly ObservableCollection<Budget> _budgets;
         private readonly ObservableCollection<MasterCategory> _masterCategories;
         private readonly int _yearDbId;
+        private readonly bool _expandCurrentMonth;
 
         public YearViewModel(
             SchemaYear year,
             IModel model,
             ObservableCollection<Budget> budgets,
-            ObservableCollection<MasterCategory> masterCategories)
+            ObservableCollection<MasterCategory> masterCategories,
+            bool expandCurrentMonth = false)
         {
             _yearDbId = year.Id;
             YearValue = year.YearValue;
             _model = model;
             _budgets = budgets;
             _masterCategories = masterCategories;
+            _expandCurrentMonth = expandCurrentMonth;
         }
 
         [ObservableProperty] private int yearValue;
@@ -43,7 +46,12 @@ namespace MoneyCenter.ViewModel
             {
                 Months.Clear();
                 foreach (var month in schemaMonths)
-                    Months.Add(new MonthViewModel(month, _model, _budgets, _masterCategories));
+                {
+                    var monthViewModel = new MonthViewModel(month, _model, _budgets, _masterCategories);
+                    if (_expandCurrentMonth && month.MonthNumber == DateTime.Now.Month)
+                        monthViewModel.IsExpanded = true;
+                    Months.Add(monthViewModel);
+                }
             });
         }
 

@@ -22,6 +22,15 @@ namespace MoneyCenter.Model
 
         // Budget operations
         Task<List<Budget>> GetBudgets();
+        Task AddBudget(Budget budget);
+        Task UpdateBudget(Budget budget);
+        Task DeleteBudget(string budgetId);
+
+        // Category type operations
+        Task<List<CategoryType>> GetCategoryTypes();
+        Task AddCategoryType(CategoryType type);
+        Task UpdateCategoryType(CategoryType type);
+        Task DeleteCategoryType(string key);
 
         // MasterCategory operations (centralized categories)
         Task<List<MasterCategory>> GetMasterCategories();
