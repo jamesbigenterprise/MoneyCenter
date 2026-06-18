@@ -18,12 +18,19 @@ namespace MoneyCenter.Services
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                var toast = Toast.Make(message,
-                    duration == ToastDuration.Long ?
-                        CommunityToolkit.Maui.Core.ToastDuration.Long :
-                        CommunityToolkit.Maui.Core.ToastDuration.Short);
+                try
+                {
+                    var toast = Toast.Make(message,
+                        duration == ToastDuration.Long ?
+                            CommunityToolkit.Maui.Core.ToastDuration.Long :
+                            CommunityToolkit.Maui.Core.ToastDuration.Short);
 
-                await toast.Show();
+                    await toast.Show();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Toast error: {ex.Message}");
+                }
             });
         }
     }

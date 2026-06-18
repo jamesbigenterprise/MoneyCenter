@@ -2,33 +2,403 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
-             x:Class="MoneyCenter.Views.BudgetsView">
+             xmlns:objects="clr-namespace:MoneyCenter.ViewModel.Objects"
+             xmlns:icons="clr-namespace:MoneyCenter.Views.Icons"
+             xmlns:controls="clr-namespace:MoneyCenter.Views.Controls"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="MoneyCenter.Views.BudgetsView"
+             x:DataType="viewmodel:BudgetsViewModel"
+             x:Name="RootView"
+             BackgroundColor="{AppThemeBinding Light={StaticResource AppBackgroundLight}, Dark={StaticResource AppBackgroundDark}}">
 
-    <VerticalStackLayout Padding="16" Spacing="16">
-        <Label Text="Budgets" FontSize="24" FontAttributes="Bold" />
-        <CollectionView ItemsSource="{Binding Budgets}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame BorderColor="Gray" CornerRadius="8" Padding="8" Margin="0,8,0,0">
+    <ScrollView>
+        <VerticalStackLayout Margin="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='0|16'}"
+                             Spacing="24">
+            <Border Style="{StaticResource PanelStyle}"
+                    Padding="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='24|16'}">
+                <VerticalStackLayout Spacing="24">
+                    <Grid ColumnDefinitions="*,Auto"
+                          IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}">
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Budget Templates" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Create and manage your budget templates. The default budget will be used for new months."
+                                   TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1"
+                                Style="{StaticResource PrimaryActionBorderStyle}"
+                                VerticalOptions="Start">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddBudgetCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static icons:MaterialIcon.Add_circle_outline}" Style="{StaticResource PrimaryActionIconTextStyle}" />
+                                <Label Text="New Budget" Style="{StaticResource PrimaryActionLabelTextStyle}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="12"
+                                         IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}">
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Budget Templates" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Create and manage your budget templates. The default budget will be used for new months."
+                                   TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                        <Border Style="{StaticResource PrimaryActionBorderStyle}"
+                                HorizontalOptions="End">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddBudgetCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static icons:MaterialIcon.Add_circle_outline}" Style="{StaticResource PrimaryActionIconTextStyle}" />
+                                <Label Text="New Budget" Style="{StaticResource PrimaryActionLabelTextStyle}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Budgets}" Spacing="16">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="viewmodel:BudgetWrapper">
+                                <Border Style="{StaticResource NestedCardStyle}"
+                                        MinimumHeightRequest="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='0|132'}">
+                                    <VerticalStackLayout Spacing="18">
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                            <HorizontalStackLayout Spacing="14">
+                                                <Label Text="{Binding Budget.Name}"
+                                                       FontSize="20"
+                                                       FontAttributes="Bold"
+                                                       VerticalOptions="Center"
+                                                       IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                                <Border Style="{StaticResource InputBorderStyle}"
+                                                        WidthRequest="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='260|180'}"
+                                                        IsVisible="{Binding IsEditing}">
+                                                    <Entry Text="{Binding Budget.Name, Mode=TwoWay}"
+                                                           FontAttributes="Bold"
+                                                           HeightRequest="34"
+                                                           MinimumHeightRequest="34" />
+                                                </Border>
+                                                <Border IsVisible="{Binding Budget.IsDefault}" Style="{StaticResource PillStyle}" BackgroundColor="{StaticResource AppInputLight}">
+                                                    <Label Text="Default" Style="{StaticResource PillTextStyle}" />
+                                                </Border>
+                                            </HorizontalStackLayout>
+                                            <Label Grid.Row="1"
+                                                   Text="{Binding Categories.Count, StringFormat='{0} categories in this template.'}"
+                                                   TextColor="{StaticResource AppMutedForegroundLight}" />
+
+                                            <HorizontalStackLayout Grid.Column="1" Grid.RowSpan="2" Spacing="8" VerticalOptions="Center" IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}">
+                                                <Button Text="{x:Static icons:MaterialIcon.Mode_edit_outline}" Style="{StaticResource MaterialIconOutlineButtonStyle}" Command="{Binding EditCommand}" />
+                                                <Button IsVisible="{Binding Budget.IsDefault, Converter={toolkit:InvertedBoolConverter}}"
+                                                        Text="{x:Static icons:MaterialIcon.Delete_outline}"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:BudgetsViewModel}}, Path=DeleteBudgetCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        Style="{StaticResource MaterialIconDangerButtonStyle}" />
+                                            </HorizontalStackLayout>
+
+                                            <HorizontalStackLayout Grid.Column="1" Grid.RowSpan="2" Spacing="8" VerticalOptions="Center" IsVisible="{Binding IsEditing}">
+                                                <Button Text="{x:Static icons:MaterialIcon.Close}" Style="{StaticResource MaterialIconOutlineButtonStyle}" Command="{Binding CancelCommand}" />
+                                                <Button Text="{x:Static icons:MaterialIcon.Check}" Style="{StaticResource MaterialIconPrimaryButtonStyle}" Command="{Binding SaveCommand}" />
+                                            </HorizontalStackLayout>
+                                        </Grid>
+
+                                        <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}"
+                                              ColumnDefinitions="2*,1*,1.4*,1*,Auto"
+                                              Padding="24,0"
+                                              ColumnSpacing="16">
+                                            <Label Text="Category" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                            <Label Grid.Column="1" Text="Type" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                            <Label Grid.Column="2" Text="Frequency" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                            <Label Grid.Column="3" Text="Amount" HorizontalTextAlignment="End" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                            <Label Grid.Column="4" Text="Actions" WidthRequest="64" HorizontalTextAlignment="Center" TextColor="{StaticResource AppMutedForegroundLight}" IsVisible="{Binding IsEditing}" />
+                                        </Grid>
+                                        <BoxView IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}" HeightRequest="1" Color="{StaticResource Gray300}" />
+
+                                        <VerticalStackLayout IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}" BindableLayout.ItemsSource="{Binding Categories}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="objects:BudgetCategory">
+                                                    <Grid ColumnDefinitions="2*,1*,1.4*,1*,Auto" Padding="24,8" ColumnSpacing="16" MinimumHeightRequest="48">
+                                                        <Label Text="{Binding Name}" VerticalOptions="Center" />
+                                                        <controls:CategoryPill Grid.Column="1" Type="{Binding Type}" />
+                                                        <Border Grid.Column="2" Style="{StaticResource PillStyle}" BackgroundColor="{StaticResource AppInputLight}" IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}">
+                                                            <Label Text="{Binding FrequencyText}" Style="{StaticResource PillTextStyle}" />
+                                                        </Border>
+                                                        <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center" IsVisible="{Binding IsEditing}">
+                                                            <Switch IsToggled="{Binding IsRecurring, Mode=TwoWay}" />
+                                                            <Label Text="Recurring" VerticalOptions="Center" />
+                                                            <Border Style="{StaticResource InputBorderStyle}" WidthRequest="64" Padding="8,0" IsVisible="{Binding IsRecurring}">
+                                                                <Entry Text="{Binding DayOfMonth, Mode=TwoWay}" Keyboard="Numeric" HeightRequest="32" MinimumHeightRequest="32" />
+                                                            </Border>
+                                                        </HorizontalStackLayout>
+                                                        <Label Grid.Column="3" Text="{Binding Amount, StringFormat='${0:N0}'}" HorizontalTextAlignment="End" VerticalOptions="Center" IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                                        <Border Grid.Column="3" Style="{StaticResource InputBorderStyle}" Padding="8,0" IsVisible="{Binding IsEditing}">
+                                                            <Entry Text="{Binding Amount, Mode=TwoWay}" Keyboard="Numeric" HorizontalTextAlignment="End" HeightRequest="32" MinimumHeightRequest="32" />
+                                                        </Border>
+                                                        <Button Grid.Column="4" Text="{x:Static icons:MaterialIcon.Delete_outline}" Style="{StaticResource MaterialIconDangerButtonStyle}" Command="{Binding DeleteCommand}" IsVisible="{Binding IsEditing}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </VerticalStackLayout>
+
+                                        <VerticalStackLayout IsVisible="{Binding IsEditing}" BindableLayout.ItemsSource="{Binding Categories}" Spacing="12">
+                                            <VerticalStackLayout.Triggers>
+                                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Source={x:Reference RootView}, Path=IsDesktop}" Value="True">
+                                                    <Setter Property="IsVisible" Value="False" />
+                                                </DataTrigger>
+                                            </VerticalStackLayout.Triggers>
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="objects:BudgetCategory">
+                                                    <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource AppInputLight}">
+                                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                                            <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
+                                                            <Entry Grid.Column="1" Text="{Binding Amount, Mode=TwoWay}" Keyboard="Numeric" HorizontalTextAlignment="End" WidthRequest="96" />
+                                                            <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="8">
+                                                                <controls:CategoryPill Type="{Binding Type}" />
+                                                                <Switch IsToggled="{Binding IsRecurring, Mode=TwoWay}" />
+                                                                <Border Style="{StaticResource InputBorderStyle}" WidthRequest="64" Padding="8,0" IsVisible="{Binding IsRecurring}">
+                                                                    <Entry Text="{Binding DayOfMonth, Mode=TwoWay}" Keyboard="Numeric" HorizontalTextAlignment="Center" />
+                                                                </Border>
+                                                            </HorizontalStackLayout>
+                                                            <Button Grid.Row="2" Grid.Column="1" Text="{x:Static icons:MaterialIcon.Delete_outline}" Style="{StaticResource MaterialIconDangerButtonStyle}" Command="{Binding DeleteCommand}" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </VerticalStackLayout>
+
+                                        <Border IsVisible="{Binding IsEditing}" StrokeThickness="0" BackgroundColor="Transparent" HorizontalOptions="Center" Padding="12,0" MinimumHeightRequest="40">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsAddingCategory}" Value="True">
+                                                    <Setter Property="IsVisible" Value="False" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding AddCategoryCommand}" />
+                                            </Border.GestureRecognizers>
+                                            <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                                                <Label Text="{x:Static icons:MaterialIcon.Add_box}" FontFamily="MaterialIcon" FontSize="17" VerticalOptions="Center" />
+                                                <Label Text="Add Category to Budget" VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
+                                        </Border>
+
+                                        <Border IsVisible="{Binding IsAddingCategory}"
+                                                Style="{StaticResource CardStyle}"
+                                                BackgroundColor="{StaticResource AppInputLight}"
+                                                Padding="12">
+                                            <controls:AddBudgetCategoryForm IsDesktop="{Binding Source={x:Reference RootView}, Path=IsDesktop}" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource PanelStyle}"
+                    Padding="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='24|16'}">
+                <VerticalStackLayout Spacing="24">
+                    <Grid ColumnDefinitions="*,Auto"
+                          IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}">
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Master Category List" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Define the default properties for all categories in your app."
+                                   TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1"
+                                Style="{StaticResource PrimaryActionBorderStyle}"
+                                VerticalOptions="Start">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddCategoryCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static icons:MaterialIcon.Add_circle_outline}" Style="{StaticResource PrimaryActionIconTextStyle}" />
+                                <Label Text="Add Category" Style="{StaticResource PrimaryActionLabelTextStyle}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="12"
+                                         IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}">
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Master Category List" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Define the default properties for all categories in your app."
+                                   TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                        <Border Style="{StaticResource PrimaryActionBorderStyle}"
+                                HorizontalOptions="End">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddCategoryCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static icons:MaterialIcon.Add_circle_outline}" Style="{StaticResource PrimaryActionIconTextStyle}" />
+                                <Label Text="Add Category" Style="{StaticResource PrimaryActionLabelTextStyle}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Border IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}"
+                            Style="{StaticResource CardStyle}"
+                            Padding="0">
                         <VerticalStackLayout>
-                            <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="18"/>
-                            <Label Text="{Binding Description}" FontSize="14" TextColor="Gray"/>
-                            <Label Text="Categories:" FontAttributes="Bold" Margin="0,8,0,0"/>
-                            <CollectionView ItemsSource="{Binding Categories}">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid ColumnDefinitions="*,*,Auto" Padding="4">
-                                            <Label Text="{Binding Name}" />
-                                            <Label Text="{Binding Amount, StringFormat='${0:F2}'}" Grid.Column="1"/>
-                                            <Label Text="{Binding Type}" Grid.Column="2"/>
+                            <Grid ColumnDefinitions="3*,1.3*,1.8*,1.4*,Auto" Padding="16,14" ColumnSpacing="16">
+                                <Label Text="Category" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                <Label Grid.Column="1" Text="Type" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                <Label Grid.Column="2" Text="Frequency" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                <Label Grid.Column="3" Text="Default Amount" HorizontalTextAlignment="End" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                <Label Grid.Column="4" Text="Actions" TextColor="{StaticResource AppMutedForegroundLight}" WidthRequest="88" HorizontalTextAlignment="Center" />
+                            </Grid>
+                            <BoxView HeightRequest="1" Color="{StaticResource Gray300}" />
+
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding MasterBudgetCategories}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="objects:BudgetCategory">
+                                        <Grid ColumnDefinitions="3*,1.3*,1.8*,1.4*,Auto" Padding="16,14" ColumnSpacing="16">
+                                            <Label Text="{Binding Name}" VerticalOptions="Center" IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                            <Border Style="{StaticResource InputBorderStyle}" IsVisible="{Binding IsEditing}">
+                                                <Entry Text="{Binding Name, Mode=TwoWay}" HeightRequest="32" MinimumHeightRequest="32" />
+                                            </Border>
+
+                                            <controls:CategoryPill Grid.Column="1"
+                                                                   Type="{Binding Type}"
+                                                                   IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                            <Border Grid.Column="1" Style="{StaticResource InputBorderStyle}" IsVisible="{Binding IsEditing}">
+                                                <Picker ItemsSource="{Binding TypeOptions}"
+                                                        SelectedItem="{Binding Type, Mode=TwoWay}" />
+                                            </Border>
+
+                                            <Border Grid.Column="2" Style="{StaticResource PillStyle}" BackgroundColor="{StaticResource AppInputLight}" IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}">
+                                                <Label Text="{Binding FrequencyText}" Style="{StaticResource PillTextStyle}" />
+                                            </Border>
+                                            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center" IsVisible="{Binding IsEditing}">
+                                                <Switch IsToggled="{Binding IsRecurring, Mode=TwoWay}" />
+                                                <Label Text="Recurring" VerticalOptions="Center" />
+                                                <Border Style="{StaticResource InputBorderStyle}" WidthRequest="64" Padding="8,0" IsVisible="{Binding IsRecurring}">
+                                                    <Entry Text="{Binding DayOfMonth, Mode=TwoWay}" Keyboard="Numeric" HeightRequest="32" MinimumHeightRequest="32" />
+                                                </Border>
+                                            </HorizontalStackLayout>
+
+                                            <Label Grid.Column="3" Text="{Binding Amount, StringFormat='${0:N0}'}" HorizontalTextAlignment="End" VerticalOptions="Center" IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                            <Border Grid.Column="3" Style="{StaticResource InputBorderStyle}" Padding="8,0" IsVisible="{Binding IsEditing}">
+                                                <Entry Text="{Binding Amount, Mode=TwoWay}" Keyboard="Numeric" HorizontalTextAlignment="End" HeightRequest="32" MinimumHeightRequest="32" />
+                                            </Border>
+
+                                            <HorizontalStackLayout Grid.Column="4" Spacing="8" WidthRequest="88" HorizontalOptions="Center">
+                                                <Button Text="{x:Static icons:MaterialIcon.Mode_edit_outline}"
+                                                        Style="{StaticResource MaterialIconOutlineButtonStyle}"
+                                                        WidthRequest="36"
+                                                        Command="{Binding EditCommand}"
+                                                        IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                                <Button Text="{x:Static icons:MaterialIcon.Delete_outline}"
+                                                        Command="{Binding DeleteCommand}"
+                                                        Style="{StaticResource MaterialIconDangerButtonStyle}"
+                                                        WidthRequest="36"
+                                                        IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                                <Button Text="{x:Static icons:MaterialIcon.Close}"
+                                                        Style="{StaticResource MaterialIconOutlineButtonStyle}"
+                                                        WidthRequest="36"
+                                                        Command="{Binding CancelCommand}"
+                                                        IsVisible="{Binding IsEditing}" />
+                                                <Button Text="{x:Static icons:MaterialIcon.Check}"
+                                                        Style="{StaticResource MaterialIconGhostButtonStyle}"
+                                                        TextColor="{StaticResource Primary}"
+                                                        WidthRequest="36"
+                                                        Command="{Binding SaveCommand}"
+                                                        IsVisible="{Binding IsEditing}" />
+                                            </HorizontalStackLayout>
                                         </Grid>
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </VerticalStackLayout>
+                    </Border>
+
+                    <VerticalStackLayout IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}"
+                                         BindableLayout.ItemsSource="{Binding MasterBudgetCategories}"
+                                         Spacing="16">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="objects:BudgetCategory">
+                                <Border Style="{StaticResource NestedCardStyle}" MinimumHeightRequest="142">
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*,Auto" RowSpacing="12">
+                                        <Label Text="{Binding Name}" FontSize="20" FontAttributes="Bold" IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                        <Border Style="{StaticResource InputBorderStyle}" IsVisible="{Binding IsEditing}">
+                                            <Entry Text="{Binding Name, Mode=TwoWay}" FontAttributes="Bold" />
+                                        </Border>
+                                        <Label Grid.Column="1"
+                                               Text="{Binding Amount, StringFormat='${0:N0}'}"
+                                               FontSize="20"
+                                               FontAttributes="Bold"
+                                               HorizontalTextAlignment="End"
+                                               IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                        <Border Grid.Column="1" Style="{StaticResource InputBorderStyle}" Padding="8,0" WidthRequest="104" IsVisible="{Binding IsEditing}">
+                                            <Entry Text="{Binding Amount, Mode=TwoWay}" Keyboard="Numeric" HorizontalTextAlignment="End" />
+                                        </Border>
+
+                                        <FlexLayout Grid.Row="1" Grid.ColumnSpan="2" Wrap="Wrap" AlignItems="Start" Direction="Row" IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}">
+                                            <controls:CategoryPill Type="{Binding Type}" Margin="0,0,8,8" />
+                                            <Border Style="{StaticResource PillStyle}" Margin="0,0,8,8" BackgroundColor="{StaticResource AppInputLight}">
+                                                <Label Text="{Binding FrequencyText}" Style="{StaticResource PillTextStyle}" />
+                                            </Border>
+                                        </FlexLayout>
+
+                                        <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="10" IsVisible="{Binding IsEditing}">
+                                            <Label Text="Type" TextColor="{StaticResource AppMutedForegroundLight}" />
+                                            <Border Style="{StaticResource InputBorderStyle}">
+                                                <Picker ItemsSource="{Binding TypeOptions}"
+                                                        SelectedItem="{Binding Type, Mode=TwoWay}" />
+                                            </Border>
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Switch IsToggled="{Binding IsRecurring, Mode=TwoWay}" />
+                                                <Label Text="Recurring" VerticalOptions="Center" />
+                                                <Border Style="{StaticResource InputBorderStyle}" WidthRequest="64" Padding="8,0" IsVisible="{Binding IsRecurring}">
+                                                    <Entry Text="{Binding DayOfMonth, Mode=TwoWay}" Keyboard="Numeric" />
+                                                </Border>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+
+                                        <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="12" HorizontalOptions="End" VerticalOptions="End">
+                                            <Button Text="{x:Static icons:MaterialIcon.Mode_edit_outline}"
+                                                    Style="{StaticResource IconButtonStyle}"
+                                                    WidthRequest="36"
+                                                    HeightRequest="36"
+                                                    MinimumWidthRequest="36"
+                                                    MinimumHeightRequest="36"
+                                                    Padding="0"
+                                                    Command="{Binding EditCommand}"
+                                                    IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                            <Button Text="{x:Static icons:MaterialIcon.Delete_outline}"
+                                                    Command="{Binding DeleteCommand}"
+                                                    Style="{StaticResource MaterialIconDangerButtonStyle}"
+                                                    WidthRequest="36"
+                                                    HeightRequest="36"
+                                                    MinimumWidthRequest="36"
+                                                    MinimumHeightRequest="36"
+                                                    Padding="0"
+                                                    IsVisible="{Binding IsEditing, Converter={toolkit:InvertedBoolConverter}}" />
+                                            <Button Text="{x:Static icons:MaterialIcon.Close}"
+                                                    Style="{StaticResource IconButtonStyle}"
+                                                    WidthRequest="36"
+                                                    HeightRequest="36"
+                                                    MinimumWidthRequest="36"
+                                                    MinimumHeightRequest="36"
+                                                    Padding="0"
+                                                    Command="{Binding CancelCommand}"
+                                                    IsVisible="{Binding IsEditing}" />
+                                            <Button Text="{x:Static icons:MaterialIcon.Check}"
+                                                    Style="{StaticResource MaterialIconPrimaryButtonStyle}"
+                                                    WidthRequest="36"
+                                                    HeightRequest="36"
+                                                    MinimumWidthRequest="36"
+                                                    MinimumHeightRequest="36"
+                                                    Padding="0"
+                                                    Command="{Binding SaveCommand}"
+                                                    IsVisible="{Binding IsEditing}" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentView>

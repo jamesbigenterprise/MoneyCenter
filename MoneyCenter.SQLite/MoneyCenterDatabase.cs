@@ -28,6 +28,7 @@ namespace MoneyCenter.SQLiteWrapper
             }
               
             await _database.CreateTableAsync<Budget>();
+            await _database.CreateTableAsync<CategoryType>();
             await _database.CreateTableAsync<MasterCategory>();
             await _database.CreateTableAsync<BudgetMasterCategory>();
             await _database.CreateTableAsync<PaymentAccount>();
@@ -133,6 +134,47 @@ namespace MoneyCenter.SQLiteWrapper
         public async Task<int> DeleteCategoryAsync(BudgetCategory category)
         {
             return await _database.DeleteAsync(category);
+        }
+
+        // CategoryType CRUD
+        public async Task<List<CategoryType>> GetAllCategoryTypesAsync()
+        {
+            return await _database.Table<CategoryType>()
+                .OrderBy(t => t.Name)
+                .ToListAsync();
+        }
+
+        public async Task<CategoryType> GetCategoryTypeByKeyAsync(string key)
+        {
+            return await _database.Table<CategoryType>()
+                .FirstOrDefaultAsync(t => t.Key == key);
+        }
+
+        public async Task<int> InsertCategoryTypeAsync(CategoryType type)
+        {
+            return await _database.InsertAsync(type);
+        }
+
+        public async Task<int> UpdateCategoryTypeAsync(CategoryType type)
+        {
+            return await _database.UpdateAsync(type);
+        }
+
+        public async Task<int> DeleteCategoryTypeAsync(CategoryType type)
+        {
+            return await _database.DeleteAsync(type);
+        }
+
+        public async Task EnsureCategoryTypesAsync(IEnumerable<CategoryType> types)
+        {
+            foreach (var type in types)
+            {
+                var existing = await GetCategoryTypeByKeyAsync(type.Key);
+                if (existing == null)
+                {
+                    await InsertCategoryTypeAsync(type);
+                }
+            }
         }
 
         public async Task<int> InsertAllMasterCategoriesAsync(IEnumerable<MasterCategory> categories)

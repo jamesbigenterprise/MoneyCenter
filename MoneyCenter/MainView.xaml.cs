@@ -1,4 +1,4 @@
-﻿using MoneyCenter.ViewModel;
+using MoneyCenter.ViewModel;
 using MoneyCenter.Views;
 namespace MoneyCenter;
 
@@ -10,6 +10,8 @@ public partial class MainView : ContentPage
     private readonly SavingsView _savingsView;
     private readonly BudgetsView _budgetsView;
     private readonly SettingsView _settingsView;
+    private View? _activeContent;
+    private bool _isSwitching;
 
     public MainView(MainViewModel viewModel,
                    DashboardView dashboardView,
@@ -33,32 +35,91 @@ public partial class MainView : ContentPage
         MainContent.Children.Add(_savingsView);
         MainContent.Children.Add(_budgetsView);
         MainContent.Children.Add(_settingsView);
+        foreach (var child in MainContent.Children.OfType<View>())
+            child.IsVisible = false;
 
-        UpdateActiveView(_viewModel.ActiveView);
+        _ = UpdateActiveView(_viewModel.ActiveView, false);
 
         _viewModel.PropertyChanged += ViewModelPropertyChanged;
     }
 
     private void OnPageLoaded(object sender, EventArgs e)
     {
-        UpdateActiveView(_viewModel.ActiveView);
+        _ = UpdateActiveView(_viewModel.ActiveView, false);
     }
 
     private void ViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(MainViewModel.ActiveView))
         {
-            UpdateActiveView(_viewModel.ActiveView);
+            _ = UpdateActiveView(_viewModel.ActiveView);
         }
     }
 
-    private void UpdateActiveView(string activeView)
+    private async Task UpdateActiveView(string activeView, bool animate = true)
     {
-        _dashboardView.IsVisible = activeView == "dashboard";
-        _expensesView.IsVisible = activeView == "expenses";
-        _savingsView.IsVisible = activeView == "savings";
-        _budgetsView.IsVisible = activeView == "budgets";
-        _settingsView.IsVisible = activeView == "settings";
+        if (_isSwitching)
+            return;
+
+        var nextView = GetContentView(activeView);
+        if (nextView == null || ReferenceEquals(nextView, _activeContent))
+            return;
+
+        _isSwitching = true;
+
+        if (_activeContent != null && animate)
+        {
+            await Task.WhenAll(
+                _activeContent.FadeToAsync(0, 100, Easing.CubicOut),
+                _activeContent.TranslateToAsync(-8, 0, 100, Easing.CubicOut));
+            _activeContent.IsVisible = false;
+        }
+        else if (_activeContent != null)
+        {
+            _activeContent.IsVisible = false;
+        }
+
+        nextView.Opacity = animate ? 0 : 1;
+        nextView.TranslationX = animate ? 8 : 0;
+        nextView.IsVisible = true;
+
+        if (animate)
+        {
+            await Task.WhenAll(
+                nextView.FadeToAsync(1, 130, Easing.CubicOut),
+                nextView.TranslateToAsync(0, 0, 130, Easing.CubicOut));
+        }
+
+        _activeContent = nextView;
+        _isSwitching = false;
+
+        if (activeView == "expenses")
+        {
+            if (_expensesView.BindingContext is ExpensesViewModel expVm) expVm.LoadData();
+        }
+        else if (activeView == "budgets")
+        {
+            if (_budgetsView.BindingContext is BudgetsViewModel budVm) _ = budVm.LoadDataAsync();
+        }
+    }
+
+    private View? GetContentView(string activeView)
+    {
+        switch (activeView)
+        {
+            case "dashboard":
+                return _dashboardView;
+            case "expenses":
+                return _expensesView;
+            case "savings":
+                return _savingsView;
+            case "budgets":
+                return _budgetsView;
+            case "settings":
+                return _settingsView;
+            default:
+                return null;
+        }
     }
 
     protected override void OnAppearing()

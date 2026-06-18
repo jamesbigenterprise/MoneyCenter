@@ -11,6 +11,7 @@ public partial class App : Application
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+        UserAppTheme = AppTheme.Light;
 
         MainPage = _serviceProvider.GetRequiredService<AppShell>();
 

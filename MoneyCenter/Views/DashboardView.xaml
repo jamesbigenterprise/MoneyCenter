@@ -2,70 +2,137 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
-             xmlns:objects="clr-namespace:MoneyCenter.ViewModel.Objects"
+             xmlns:icons="clr-namespace:MoneyCenter.Views.Icons"
              x:Class="MoneyCenter.DashboardView"
-             x:DataType="viewmodel:DashboardViewModel">
+             x:DataType="viewmodel:DashboardViewModel"
+             x:Name="RootView"
+             BackgroundColor="{AppThemeBinding Light={StaticResource AppBackgroundLight}, Dark={StaticResource AppBackgroundDark}}">
 
-    <Grid RowDefinitions="Auto,*" Padding="10">
-        <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" Spacing="10">
-            <Label Text="Dashboard" FontSize="24" FontAttributes="Bold" />
-
-            <Label Text="{Binding CurrentMonthDisplay}" FontSize="18" />
-
-            <Border StrokeThickness="1" Padding="10">
-                <Grid ColumnDefinitions="*,*">
-                    <VerticalStackLayout Grid.Column="0">
-                        <Label Text="Monthly Income" />
-                        <Entry Text="{Binding CurrentIncome, Mode=TwoWay}" Keyboard="Numeric" />
+    <ScrollView>
+        <Border Style="{StaticResource PanelStyle}"
+                Margin="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='0|16'}"
+                Padding="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='24|16'}">
+            <VerticalStackLayout Spacing="24">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                    <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="0">
+                        <Label Text="Financial Overview" FontSize="20" FontAttributes="Bold" />
+                        <Label Text="View insights for a specific month." TextColor="{StaticResource AppMutedForegroundLight}" />
                     </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1">
-                        <Label Text="Monthly Expenses" />
-                        <Label Text="{Binding CurrentExpenses, StringFormat='${0:F2}'}" />
-                    </VerticalStackLayout>
+
+                    <HorizontalStackLayout Grid.Row="0"
+                                           Grid.Column="1"
+                                           IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}"
+                                           Spacing="8"
+                                           VerticalOptions="Start">
+                        <Button Text="{Binding CurrentMonthDisplay}" Style="{StaticResource OutlineButtonStyle}" />
+                        <Button Text="{x:Static icons:MaterialIcon.Calendar_month}" Style="{StaticResource MaterialIconOutlineButtonStyle}" />
+                    </HorizontalStackLayout>
+
+                    <HorizontalStackLayout Grid.Row="1"
+                                           Grid.Column="0"
+                                           IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}"
+                                           Spacing="8"
+                                           Margin="0,18,0,0">
+                        <Button Text="{Binding CurrentMonthDisplay}" Style="{StaticResource OutlineButtonStyle}" WidthRequest="180" />
+                        <Button Text="{x:Static icons:MaterialIcon.Calendar_month}" Style="{StaticResource MaterialIconOutlineButtonStyle}" />
+                    </HorizontalStackLayout>
                 </Grid>
-            </Border>
-        </VerticalStackLayout>
 
-        <!-- Main Dashboard Content -->
-        <ScrollView Grid.Row="1" Margin="0,15,0,0">
-            <VerticalStackLayout Spacing="15">
-                <!-- Summary -->
-                <Border StrokeThickness="1" Padding="15">
-                    <VerticalStackLayout>
-                        <Label Text="Summary" FontAttributes="Bold" />
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto">
-                            <Label Grid.Row="0" Grid.Column="0" Text="Total Income:" />
-                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalIncome, StringFormat='${0:F2}'}" />
-                            <Label Grid.Row="1" Grid.Column="0" Text="Total Expenses:" />
-                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalExpenses, StringFormat='${0:F2}'}" />
-                            <Label Grid.Row="2" Grid.Column="0" Text="Balance:" />
-                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalBalance, StringFormat='${0:F2}'}" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
+                <Grid IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}"
+                      ColumnDefinitions="*,*,*" ColumnSpacing="24">
+                    <Border Grid.Column="0" Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource AppSurface1Light}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Total Income" />
+                                <Label Grid.Column="1" Text="{x:Static icons:MaterialIcon.Attach_money}" FontFamily="MaterialIcon" FontSize="20" TextColor="{StaticResource AppMutedForegroundLight}" />
+                            </Grid>
+                            <Label Text="{Binding CurrentIncome, StringFormat='${0:N0}'}" FontSize="26" FontAttributes="Bold" />
+                            <Border Style="{StaticResource InputBorderStyle}" Padding="12,0">
+                                <Entry Text="{Binding CurrentIncome, Mode=TwoWay}"
+                                       Keyboard="Numeric"
+                                       HeightRequest="38"
+                                       MinimumHeightRequest="38" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
 
-                <!-- Recent Expenses -->
-                <Border StrokeThickness="1" Padding="15">
-                    <VerticalStackLayout>
-                        <Label Text="Recent Expenses" FontAttributes="Bold" />
-                        <CollectionView ItemsSource="{Binding RecentExpenses}" EmptyView="No recent expenses">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="objects:Expense">
-                                    <Grid Padding="5" ColumnDefinitions="*,Auto">
-                                        <VerticalStackLayout Grid.Column="0">
-                                            <Label Text="{Binding Destination}" FontAttributes="Bold" />
-                                            <Label Text="{Binding CategoryName}" FontSize="12" TextColor="Gray" />
-                                            <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" FontSize="12" TextColor="Gray" />
-                                        </VerticalStackLayout>
-                                        <Label Grid.Column="1" Text="{Binding Amount, StringFormat='${0:F2}'}" FontAttributes="Bold" VerticalOptions="Center" />
-                                    </Grid>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </VerticalStackLayout>
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource AppSurface1Light}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Total Expenses" />
+                                <Label Grid.Column="1" Text="{x:Static icons:MaterialIcon.Receipt_long}" FontFamily="MaterialIcon" FontSize="20" TextColor="{StaticResource AppMutedForegroundLight}" />
+                            </Grid>
+                            <Label Text="{Binding TotalExpenses, StringFormat='${0:N0}'}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource Destructive}" />
+                            <Label Text="{Binding RecentExpenses.Count, StringFormat='{0} transaction(s) in this period'}" TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource AppSurface1Light}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Remaining Balance" />
+                                <Label Grid.Column="1" Text="{x:Static icons:MaterialIcon.Account_balance_wallet}" FontFamily="MaterialIcon" FontSize="20" TextColor="{StaticResource AppMutedForegroundLight}" />
+                            </Grid>
+                            <Label Text="{Binding TotalBalance, StringFormat='${0:N0}'}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                            <Label Text="{Binding CurrentMonthDisplay, StringFormat='For {0}'}" TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <VerticalStackLayout IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}" Spacing="24">
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Total Income" />
+                                <Label Grid.Column="1" Text="{x:Static icons:MaterialIcon.Attach_money}" FontFamily="MaterialIcon" FontSize="20" TextColor="{StaticResource AppMutedForegroundLight}" />
+                            </Grid>
+                            <Label Text="{Binding CurrentIncome, StringFormat='${0:N0}'}" FontSize="26" FontAttributes="Bold" />
+                            <Border Style="{StaticResource InputBorderStyle}" Padding="12,0">
+                                <Entry Text="{Binding CurrentIncome, Mode=TwoWay}"
+                                       Keyboard="Numeric"
+                                       HeightRequest="38"
+                                       MinimumHeightRequest="38" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Total Expenses" />
+                                <Label Grid.Column="1" Text="{x:Static icons:MaterialIcon.Receipt_long}" FontFamily="MaterialIcon" FontSize="20" TextColor="{StaticResource AppMutedForegroundLight}" />
+                            </Grid>
+                            <Label Text="{Binding TotalExpenses, StringFormat='${0:N0}'}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource Destructive}" />
+                            <Label Text="{Binding RecentExpenses.Count, StringFormat='{0} transaction(s) in this period'}" TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource CardStyle}">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Remaining Balance" />
+                                <Label Grid.Column="1" Text="{x:Static icons:MaterialIcon.Account_balance_wallet}" FontFamily="MaterialIcon" FontSize="20" TextColor="{StaticResource AppMutedForegroundLight}" />
+                            </Grid>
+                            <Label Text="{Binding TotalBalance, StringFormat='${0:N0}'}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                            <Label Text="{Binding CurrentMonthDisplay, StringFormat='For {0}'}" TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource CardStyle}" MinimumHeightRequest="360">
+                    <Grid RowDefinitions="Auto,*">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Expense Breakdown" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="{Binding CurrentMonthDisplay, StringFormat='Your spending by category for {0}.'}" TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Row="1"
+                               Text="No expenses logged for this period. Add some to see your breakdown!"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource AppMutedForegroundLight}" />
+                    </Grid>
                 </Border>
             </VerticalStackLayout>
-        </ScrollView>
-    </Grid>
+        </Border>
+    </ScrollView>
 </ContentView>

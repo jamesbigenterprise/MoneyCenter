@@ -2,23 +2,248 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:MoneyCenter.ViewModel"
-             x:Class="MoneyCenter.Views.SavingsView">
+             xmlns:objects="clr-namespace:MoneyCenter.ViewModel.Objects"
+             xmlns:icons="clr-namespace:MoneyCenter.Views.Icons"
+             x:Class="MoneyCenter.Views.SavingsView"
+             x:DataType="viewmodel:SavingsViewModel"
+             x:Name="RootView"
+             BackgroundColor="{AppThemeBinding Light={StaticResource AppBackgroundLight}, Dark={StaticResource AppBackgroundDark}}">
 
-    <VerticalStackLayout Padding="16" Spacing="16">
-        <Label Text="Savings Allocator" FontSize="24" FontAttributes="Bold" />
-        <Label Text="Total Savings:" FontSize="18" />
-        <Label Text="{Binding TotalSavings, StringFormat='${0:F2}'}" FontSize="22" FontAttributes="Bold" TextColor="Green" />
-
-        <Label Text="Savings Categories" FontAttributes="Bold" Margin="0,16,0,0"/>
-        <CollectionView ItemsSource="{Binding SavingsCategories}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid ColumnDefinitions="*,Auto" Padding="8">
-                        <Label Text="{Binding Name}" />
-                        <Label Text="{Binding Amount, StringFormat='${0:F2}'}" Grid.Column="1" />
+    <ScrollView>
+        <Border Style="{StaticResource PanelStyle}"
+                Margin="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='0|16'}"
+                Padding="{Binding Source={x:Reference RootView}, Path=IsDesktop, Converter={StaticResource BoolToObjectConverter}, ConverterParameter='24|16'}">
+            <VerticalStackLayout Spacing="16">
+                <VerticalStackLayout Spacing="24">
+                    <Grid ColumnDefinitions="*,Auto"
+                          IsVisible="{Binding Source={x:Reference RootView}, Path=IsDesktop}">
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Savings Buckets" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Create and manage your savings goals. Funds are allocated via the Expenses tab."
+                                   TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1"
+                                Style="{StaticResource PrimaryActionBorderStyle}"
+                                VerticalOptions="Start">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding StartAddBucketCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static icons:MaterialIcon.Add_circle_outline}" Style="{StaticResource PrimaryActionIconTextStyle}" />
+                                <Label Text="New Bucket" Style="{StaticResource PrimaryActionLabelTextStyle}" />
+                            </HorizontalStackLayout>
+                        </Border>
                     </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </VerticalStackLayout>
+
+                    <Grid RowDefinitions="Auto,Auto"
+                          ColumnDefinitions="*,Auto"
+                          RowSpacing="12"
+                          IsVisible="{Binding Source={x:Reference RootView}, Path=IsMobile}">
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="0">
+                            <Label Text="Savings Buckets" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Create and manage your savings goals. Funds are allocated via the Expenses tab."
+                                   TextColor="{StaticResource AppMutedForegroundLight}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Row="0"
+                                Grid.Column="1"
+                                Style="{StaticResource PrimaryActionBorderStyle}"
+                                VerticalOptions="Start">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding StartAddBucketCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static icons:MaterialIcon.Add_circle_outline}" Style="{StaticResource PrimaryActionIconTextStyle}" />
+                                <Label Text="New Bucket" Style="{StaticResource PrimaryActionLabelTextStyle}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <Border IsVisible="{Binding IsAddingBucket}"
+                            BackgroundColor="{StaticResource AppInputLight}"
+                            Stroke="{StaticResource Primary}"
+                            StrokeThickness="2"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="16">
+                        <VerticalStackLayout Spacing="14">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Bucket Name" />
+                                <Border Style="{StaticResource InputBorderStyle}" Padding="12,0">
+                                    <Entry Text="{Binding NewBucketName, Mode=TwoWay}"
+                                           Placeholder="General Savings"
+                                           HeightRequest="38"
+                                           MinimumHeightRequest="38" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Goal Amount" />
+                                <Border Style="{StaticResource InputBorderStyle}" Padding="12,0">
+                                    <Entry Text="{Binding NewBucketAmount, Mode=TwoWay}"
+                                           Keyboard="Numeric"
+                                           Placeholder="250"
+                                           HeightRequest="38"
+                                           MinimumHeightRequest="38" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="End">
+                                <Border BackgroundColor="{StaticResource AppWarningLight}"
+                                        Stroke="{StaticResource Primary}"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 6"
+                                        Padding="14,0"
+                                        MinimumHeightRequest="40">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding CancelAddBucketCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                        <Label Text="{x:Static icons:MaterialIcon.Close}"
+                                               FontFamily="MaterialIcon"
+                                               FontSize="18"
+                                               TextColor="{StaticResource AppForegroundLight}"
+                                               VerticalOptions="Center" />
+                                        <Label Text="Cancel"
+                                               TextColor="{StaticResource AppForegroundLight}"
+                                               VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                                <Border BackgroundColor="{StaticResource Primary}"
+                                        Stroke="{StaticResource Primary}"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 6"
+                                        Padding="14,0"
+                                        MinimumHeightRequest="40">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SaveBucketCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                        <Label Text="{x:Static icons:MaterialIcon.Check}"
+                                               FontFamily="MaterialIcon"
+                                               FontSize="18"
+                                               TextColor="{StaticResource White}"
+                                               VerticalOptions="Center" />
+                                        <Label Text="Save"
+                                               TextColor="{StaticResource White}"
+                                               VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding VisibleSavingsCategories}" Spacing="16">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="objects:BudgetCategory">
+                                <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource AppInputLight}">
+                                    <VerticalStackLayout Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <VerticalStackLayout Spacing="0">
+                                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
+                                                <Label TextColor="{StaticResource AppMutedForegroundLight}">
+                                                    <Label.FormattedText>
+                                                        <FormattedString>
+                                                            <Span Text="{Binding CurrentBalance, StringFormat='${0:N0}'}" TextColor="{StaticResource AppForegroundLight}" />
+                                                            <Span Text=" / " />
+                                                            <Span Text="{Binding Amount, StringFormat='${0:N0}'}" />
+                                                        </FormattedString>
+                                                    </Label.FormattedText>
+                                                </Label>
+                                            </VerticalStackLayout>
+                                            <HorizontalStackLayout Grid.Column="1" Spacing="4">
+                                                <Button Text="{x:Static icons:MaterialIcon.Mode_edit_outline}" Style="{StaticResource MaterialIconGhostButtonStyle}" WidthRequest="36" HeightRequest="36" MinimumWidthRequest="36" MinimumHeightRequest="36" />
+                                                <Button Text="{x:Static icons:MaterialIcon.Visibility_off}"
+                                                        FontFamily="MaterialIcon"
+                                                        FontSize="18"
+                                                        Command="{Binding Source={x:Reference RootView}, Path=BindingContext.HideBucketCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        BackgroundColor="Transparent"
+                                                        TextColor="{StaticResource AppForegroundLight}"
+                                                        WidthRequest="36"
+                                                        HeightRequest="36"
+                                                        MinimumWidthRequest="36"
+                                                        MinimumHeightRequest="36"
+                                                        Padding="0" />
+                                                <Button Text="{x:Static icons:MaterialIcon.Delete_outline}" Style="{StaticResource MaterialIconDangerButtonStyle}" WidthRequest="36" HeightRequest="36" MinimumWidthRequest="36" MinimumHeightRequest="36" />
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                        <ProgressBar Progress="{Binding Progress}"
+                                                     HeightRequest="8"
+                                                     BackgroundColor="{StaticResource AppProgressTrackLight}"
+                                                     ProgressColor="{StaticResource Primary}" />
+                                        <Label Text="{Binding ProgressText}" HorizontalTextAlignment="End" TextColor="{StaticResource AppMutedForegroundLight}" FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <Border IsVisible="{Binding SavingsCategories.Count, Converter={StaticResource IsZeroConverter}}"
+                            Stroke="{StaticResource Gray300}"
+                            StrokeThickness="2"
+                            StrokeDashArray="4,4"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="16"
+                            BackgroundColor="{StaticResource AppInputLight}">
+                        <VerticalStackLayout HorizontalOptions="Center" Padding="12" Spacing="8">
+                            <Label Text="{x:Static icons:MaterialIcon.Savings}" FontFamily="MaterialIcon" FontSize="48" HorizontalTextAlignment="Center" TextColor="{StaticResource AppMutedForegroundLight}" />
+                            <Label Text="No Savings Buckets Yet" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                            <Label Text="Create one to start saving!" TextColor="{StaticResource AppMutedForegroundLight}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="24">
+                        <Label Text="Hidden Savings Buckets" FontSize="20" FontAttributes="Bold" />
+
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding HiddenSavingsCategories}" Spacing="16">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="objects:BudgetCategory">
+                                    <Border Style="{StaticResource CardStyle}" BackgroundColor="{StaticResource AppInputLight}">
+                                        <VerticalStackLayout Spacing="10">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <VerticalStackLayout Spacing="0">
+                                                    <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
+                                                    <Label TextColor="{StaticResource AppMutedForegroundLight}">
+                                                        <Label.FormattedText>
+                                                            <FormattedString>
+                                                                <Span Text="{Binding CurrentBalance, StringFormat='${0:N0}'}" TextColor="{StaticResource AppForegroundLight}" />
+                                                                <Span Text=" / " />
+                                                                <Span Text="{Binding Amount, StringFormat='${0:N0}'}" />
+                                                            </FormattedString>
+                                                        </Label.FormattedText>
+                                                    </Label>
+                                                </VerticalStackLayout>
+                                                <HorizontalStackLayout Grid.Column="1" Spacing="4">
+                                                    <Button Text="{x:Static icons:MaterialIcon.Mode_edit_outline}" Style="{StaticResource MaterialIconGhostButtonStyle}" WidthRequest="36" HeightRequest="36" MinimumWidthRequest="36" MinimumHeightRequest="36" />
+                                                    <Button Text="{x:Static icons:MaterialIcon.Visibility}"
+                                                            FontFamily="MaterialIcon"
+                                                            FontSize="18"
+                                                            Command="{Binding Source={x:Reference RootView}, Path=BindingContext.ShowBucketCommand}"
+                                                            CommandParameter="{Binding .}"
+                                                            BackgroundColor="Transparent"
+                                                            TextColor="{StaticResource AppForegroundLight}"
+                                                            WidthRequest="36"
+                                                            HeightRequest="36"
+                                                            MinimumWidthRequest="36"
+                                                            MinimumHeightRequest="36"
+                                                            Padding="0" />
+                                                    <Button Text="{x:Static icons:MaterialIcon.Delete_outline}" Style="{StaticResource MaterialIconDangerButtonStyle}" WidthRequest="36" HeightRequest="36" MinimumWidthRequest="36" MinimumHeightRequest="36" />
+                                                </HorizontalStackLayout>
+                                            </Grid>
+                                            <ProgressBar Progress="{Binding Progress}"
+                                                         HeightRequest="8"
+                                                         BackgroundColor="{StaticResource AppProgressTrackLight}"
+                                                         ProgressColor="{StaticResource Primary}" />
+                                            <Label Text="{Binding ProgressText}" HorizontalTextAlignment="End" TextColor="{StaticResource AppMutedForegroundLight}" FontSize="12" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </Border>
+    </ScrollView>
 </ContentView>

@@ -4,6 +4,7 @@ using MoneyCenter.Model;
 using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Maui.Alerts;
 using SchemaMonth = MoneyCenter.Schema.Month;
 
 namespace MoneyCenter.ViewModel
@@ -54,17 +55,20 @@ namespace MoneyCenter.ViewModel
         public async Task LoadExpensesAsync()
         {
             var schemaExpenses = await _model.GetExpensesByMonthId(_monthId);
-            Expenses.Clear();
-            foreach (var expense in schemaExpenses)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                var vm = expense.ToViewModel();
-                var category = _masterCategories.FirstOrDefault(c => c.Id == expense.MasterCategoryId);
-                vm.CategoryName = category?.Name ?? string.Empty;
-                var capturedId = expense.Id;
-                vm.DeleteCommand = new AsyncRelayCommand(() => DeleteExpenseAsync(capturedId));
-                Expenses.Add(vm);
-            }
-            TransactionCount = Expenses.Count;
+                Expenses.Clear();
+                foreach (var expense in schemaExpenses)
+                {
+                    var vm = expense.ToViewModel();
+                    var category = _masterCategories.FirstOrDefault(c => c.Id == expense.MasterCategoryId);
+                    vm.CategoryName = category?.Name ?? string.Empty;
+                    var capturedId = expense.Id;
+                    vm.DeleteCommand = new AsyncRelayCommand(() => DeleteExpenseAsync(capturedId));
+                    Expenses.Add(vm);
+                }
+                TransactionCount = Expenses.Count;
+            });
         }
 
         [RelayCommand]
@@ -83,6 +87,7 @@ namespace MoneyCenter.ViewModel
         {
             await _model.DeleteExpense(_monthId, expenseId);
             await LoadExpensesAsync();
+            await Toast.Make("Expense deleted from ledger.", CommunityToolkit.Maui.Core.ToastDuration.Short).Show();
         }
     }
 }

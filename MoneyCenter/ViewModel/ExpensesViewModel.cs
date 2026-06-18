@@ -1,10 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MoneyCenter.Model;
 using MoneyCenter.Services;
 using MoneyCenter.ViewModel.Extensions;
 using MoneyCenter.ViewModel.Objects;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Maui.Alerts;
 
 namespace MoneyCenter.ViewModel;
 
@@ -30,6 +31,18 @@ public partial class ExpensesViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<PaymentAccount> paymentAccounts = new();
 
+    public string AddPreviousYearText => $"Add {PreviousYearValue}";
+
+    public string AddNextYearText => $"Add {NextYearValue}";
+
+    private int PreviousYearValue => Years.Any()
+        ? Years.Min(y => y.YearValue) - 1
+        : DateTime.Now.Year - 1;
+
+    private int NextYearValue => Years.Any()
+        ? Years.Max(y => y.YearValue) + 1
+        : DateTime.Now.Year + 1;
+
     public async void LoadData()
     {
         if (_isLoading) return;
@@ -40,6 +53,12 @@ public partial class ExpensesViewModel : ObservableObject
             var categoriesList = await _model.GetMasterCategories();
             var accountsList = await _model.GetPaymentAccounts();
             var schemaYears = await _model.GetYears();
+
+            if (!schemaYears.Any())
+            {
+                await _model.AddYear(DateTime.Now.Year);
+                schemaYears = await _model.GetYears();
+            }
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -57,7 +76,19 @@ public partial class ExpensesViewModel : ObservableObject
 
                 Years.Clear();
                 foreach (var year in schemaYears.OrderByDescending(y => y.YearValue))
-                    Years.Add(new YearViewModel(year, _model, Budgets, MasterCategories));
+                {
+                    var yearViewModel = new YearViewModel(
+                        year,
+                        _model,
+                        Budgets,
+                        MasterCategories,
+                        year.YearValue == DateTime.Now.Year);
+                    yearViewModel.IsExpanded = year.YearValue == DateTime.Now.Year;
+                    Years.Add(yearViewModel);
+                }
+
+                OnPropertyChanged(nameof(AddPreviousYearText));
+                OnPropertyChanged(nameof(AddNextYearText));
             });
         }
         catch (Exception ex)
@@ -78,27 +109,37 @@ public partial class ExpensesViewModel : ObservableObject
         {
             Years.Clear();
             foreach (var year in years)
-                Years.Add(new YearViewModel(year, _model, Budgets, MasterCategories));
+            {
+                var yearViewModel = new YearViewModel(
+                    year,
+                    _model,
+                    Budgets,
+                    MasterCategories,
+                    year.YearValue == DateTime.Now.Year);
+                yearViewModel.IsExpanded = year.YearValue == DateTime.Now.Year;
+                Years.Add(yearViewModel);
+            }
+
+            OnPropertyChanged(nameof(AddPreviousYearText));
+            OnPropertyChanged(nameof(AddNextYearText));
         });
     }
 
     [RelayCommand]
     private async Task AddPreviousYear()
     {
-        int prevYear = Years.Any()
-            ? Years.Min(y => y.YearValue) - 1
-            : DateTime.Now.Year - 1;
+        int prevYear = PreviousYearValue;
         await _model.AddYear(prevYear);
         await LoadYearsAsync();
+        await Toast.Make($"Added year {prevYear} to ledger.", CommunityToolkit.Maui.Core.ToastDuration.Short).Show();
     }
 
     [RelayCommand]
     private async Task AddNextYear()
     {
-        int nextYear = Years.Any()
-            ? Years.Max(y => y.YearValue) + 1
-            : DateTime.Now.Year + 1;
+        int nextYear = NextYearValue;
         await _model.AddYear(nextYear);
         await LoadYearsAsync();
+        await Toast.Make($"Added year {nextYear} to ledger.", CommunityToolkit.Maui.Core.ToastDuration.Short).Show();
     }
 }
